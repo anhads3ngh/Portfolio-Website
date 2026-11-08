@@ -14,7 +14,7 @@ Open http://localhost:8001 for the portfolio or http://localhost:8001/game/ for 
 
 ## Play
 
-- First-person view starts by default. Use two-finger trackpad scrolling to walk forward/backward and sideways; click and drag to look around. Click walkable ground to move there. Mouse capture is not required.
+- First-person view starts by default. Use two-finger trackpad scrolling to walk forward/backward and sideways; move the cursor across the world to look around without holding a click. Camera turns and movement ease smoothly; moving to the left or right edge continues the turn. Touchscreens still use drag-to-look. Click walkable ground to move there. Mouse capture is not required.
 - WASD or arrow keys: move. Shift: run. Space: jump. On mobile, use the direction pad, drag to look, and tap Jump.
 - Press F or use the view button to switch between first person and the overhead map.
 - In the overhead map, click the ground to walk; use bridges or jump across the stream.
