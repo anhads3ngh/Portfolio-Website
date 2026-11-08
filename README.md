@@ -15,10 +15,10 @@ Open http://localhost:8001 for the portfolio or http://localhost:8001/game/ for 
 ## Play
 
 - Tap **Walk** once for hands-free forward movement, swipe the trackpad to steer, and tap **Stop walking** to stop. No holding or dragging is required.
-- First-person view starts by default. Use two-finger trackpad scrolling to walk forward/backward and sideways; move the cursor across the world to look around without holding a click. Camera turns and movement ease smoothly; moving to the left or right edge continues the turn. Touchscreens still use drag-to-look. Click walkable ground to move there. Mouse capture is not required.
+- First-person view starts by default. Use two-finger trackpad scrolling to walk forward/backward and sideways; move the cursor across the world to look around without holding a click. Walking eases smoothly; camera rotation follows cursor input directly. The camera stops when cursor movement stops; screen edges never turn it automatically. Touchscreens still use drag-to-look. Click walkable ground to move there. Mouse capture is not required.
 - WASD or arrow keys: move. Shift: run. Space: jump. On mobile, use the direction pad, drag to look, and tap Jump.
 - Press F or use the view button to switch between first person and the overhead map.
-- In the overhead map, click the ground to walk; use bridges or jump across the stream.
+- In the overhead map, click the ground to walk; use bridges to cross the stream. Water blocks walking, click-to-walk, and jumping, with a short swimming-skills message.
 - Press E near a landmark, click its building, or use the bottom navigation to discover its story.
 - Escape or the close button returns to the world.
 - Collect eight crystals and discover five landmarks. Progress lasts for the current page session.
@@ -69,3 +69,5 @@ Serve the repository as a static website. For GitHub Pages, select the `main` br
 Terrain uses exposed surfaces instead of buried solid cubes. Geometry is grouped into spatial chunks with per-instance color, and inactive districts and interiors are hidden. Dynamic point-light loops are avoided; render resolution adapts downward on slow frames. The HUD updates only when values change, and room textures load on entry.
 
 The avatar follows the supplied portrait’s navy turban, beard, and cream/navy striped top; business attire is used in the office. Rooms, the 60-seat classroom, and the airport route are game interpretations rather than photographic or floor-plan reproductions.
+
+The house, University of Alberta, and TD Terrace exteriors display the original generated PNG artwork as image-based architectural entrances. Their rooms and characters remain explorable 3D scenes. PNGs load only near their landmark; exterior frames retain the collision and entrance thresholds.
