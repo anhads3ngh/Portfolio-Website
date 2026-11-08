@@ -47,6 +47,7 @@ Each building has a distinct 3D interior, chapter-specific content, an outside e
 
 - `index.html`, `styles.css`, `script.js`: main portfolio.
 - `game/`: procedural Canvas 2D overhead world, Three.js first-person world, player controls, and landmark dialogs.
+- `game/landmark-buildings.js`: batched architectural geometry for the mansion, university, and TD tower.
 - `game/experience-scenes.js`: photo-inspired voxel character, animated typing/coffee poses, bedroom workstation, instanced 60-student lab, TD concourse, floor-21 office, and lift cabin.
 - `assets/td-terrace.jpg`, `assets/ualberta-campus.jpg`, `assets/spacecopy-remote.jpg`: AI-generated voxel interpretations for the experience section. The mansion is a fictional remote-work metaphor.
 - `projects-data.js`: shared game project data. Only PulseOps and Cassandra Log Explorer link to project repositories; other projects show a title and description.
@@ -54,7 +55,7 @@ Each building has a distinct 3D interior, chapter-specific content, an outside e
 - `assets/Anhad_Singh_Sarna_Resume.pdf`: downloadable résumé.
 - `classic/`: alternate access to the conventional portfolio layout.
 
-Google Fonts are optional online resources; local system fonts provide the fallback. The game world is generated locally from code from code. First-person mode uses a locally vendored Three.js r170 renderer (MIT license in `game/vendor/THREE-LICENSE.txt`); it requires WebGL. The Canvas 2D overhead map remains available if 3D graphics are unavailable.
+Google Fonts are optional online resources; local system fonts provide the fallback. The game world is generated locally from code. First-person mode uses a locally vendored Three.js r170 renderer (MIT license in `game/vendor/THREE-LICENSE.txt`); it requires WebGL. The Canvas 2D overhead map remains available if 3D graphics are unavailable.
 
 ## Content scope
 
@@ -70,7 +71,7 @@ Terrain uses exposed surfaces instead of buried solid cubes. Geometry is grouped
 
 The avatar follows the supplied portrait’s navy turban, beard, and cream/navy striped top; business attire is used in the office. Rooms, the 60-seat classroom, and the airport route are game interpretations rather than photographic or floor-plan reproductions.
 
-The house, University of Alberta, and TD Terrace exteriors display the original generated PNG artwork as image-based architectural entrances. Their rooms and characters remain explorable 3D scenes. PNGs load only near their landmark; exterior frames retain the collision and entrance thresholds.
+The house, University of Alberta, and TD Terrace are solid 3D voxel buildings with modeled fronts, sides, roofs and rear elevations. The mansion has green gables, a turret, a glazed study, balcony and gardens; the campus has brick wings and a clock tower; the TD interpretation has a glazed concourse, window mullions and an offset tower crown. Walk around them or approach their front doors to enter the connected interiors. Generated PNG illustrations remain in the indoor galleries. Exterior geometry shares the existing instance batches rather than loading large image panels.
 
 ## Final deployment and interaction polish
 
