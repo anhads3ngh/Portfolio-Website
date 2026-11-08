@@ -31,10 +31,14 @@ The cabin introduces the builder; the workshop presents projects; the watchtower
 
 Open `/game/?journey=experience`, use the **Experience Portal** button, or walk through the purple portal near spawn.
 
-1. **Home base:** approach the mansion door and press E or click Enter. Inside the furnished home office, read the Space Copy remote internship chapter. Continue to the university.
-2. **University of Alberta:** enter the academy to explore the teaching and study chapter. Continue to the campus runway.
+1. **Home base:** approach the mansion door and press E or click Enter. Inside the furnished bedroom-office, meet a photo-inspired voxel Anhad typing at a three-monitor workstation and read the Space Copy remote internship chapter. Continue to the university.
+2. **University of Alberta:** enter a 60-seat computer lab to see Anhad teaching at the front and explore the teaching and study chapter. Continue to the campus runway.
 3. **Edmonton → Toronto:** approach the aircraft and board with E, click Take flight, or use the journey navigation. A ten-second animated flight connects the two districts; a skip option and a shorter reduced-motion version are available.
-4. **TD Terrace:** land in a separate downtown Toronto district, walk to the tower, and enter its lobby to read the TD internship chapter.
+4. **TD Terrace:** land at the Toronto airstrip, follow the glowing route downtown, enter TD Terrace’s concourse, and use the lift to visit floor 21. The office shows Anhad in business attire, typing and sipping coffee, alongside the TD internship chapter.
+
+5. **Return to Edmonton:** take the lift to G, exit the concourse, follow the glowing trail to the Toronto airstrip, and board the return flight.
+
+The lift has working G/21 controls, a live floor indicator, and an exit control. A Trail on/off button controls the navigation path; Hide story/Show story clears the view of each room. Main navigation is disabled during flights and lift rides; Reset remains available.
 
 Each building has a distinct 3D interior, chapter-specific content, an outside exit, and a next-step button. Experience illustrations are displayed in unobstructed wall frames, with full-resolution image viewers in the chapter panels. The journey navigation lets visitors revisit completed stops. The skyline and flight are stylized game representations.
 
@@ -43,6 +47,7 @@ Each building has a distinct 3D interior, chapter-specific content, an outside e
 
 - `index.html`, `styles.css`, `script.js`: main portfolio.
 - `game/`: procedural Canvas 2D overhead world, Three.js first-person world, player controls, and landmark dialogs.
+- `game/experience-scenes.js`: photo-inspired voxel character, animated typing/coffee poses, bedroom workstation, instanced 60-student lab, TD concourse, floor-21 office, and lift cabin.
 - `assets/td-terrace.jpg`, `assets/ualberta-campus.jpg`, `assets/spacecopy-remote.jpg`: AI-generated voxel interpretations for the experience section. The mansion is a fictional remote-work metaphor.
 - `projects-data.js`: shared game project data. Only PulseOps and Cassandra Log Explorer link to project repositories; other projects show a title and description.
 - `assets/voxel-world.svg`: original vector illustration for the play feature.
@@ -62,3 +67,5 @@ Serve the repository as a static website. For GitHub Pages, select the `main` br
 ## Rendering
 
 Terrain uses exposed surfaces instead of buried solid cubes. Geometry is grouped into spatial chunks with per-instance color, and inactive districts and interiors are hidden. Dynamic point-light loops are avoided; render resolution adapts downward on slow frames. The HUD updates only when values change, and room textures load on entry.
+
+The avatar follows the supplied portrait’s navy turban, beard, and cream/navy striped top; business attire is used in the office. Rooms, the 60-seat classroom, and the airport route are game interpretations rather than photographic or floor-plan reproductions.
