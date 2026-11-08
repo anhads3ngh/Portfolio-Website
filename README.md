@@ -1,6 +1,6 @@
 # Anhad Singh Sarna — Portfolio & Voxel World
 
-A software engineering portfolio with a playable, Minecraft-inspired voxel landscape, first-person and third-person 3D views, and a separate overhead map. The main portfolio is the landing page; a large illustrated **Play My World** card and hero button lead to the game at `/game/`.
+A software engineering portfolio with a playable, Minecraft-inspired voxel landscape, first-person and third-person 3D views, and a separate overhead map. The main portfolio is the landing page; a large illustrated **Enter my world** feature and header button lead to the game at `/game/`.
 
 ## Run locally
 
@@ -49,7 +49,10 @@ Each building has a distinct 3D interior, chapter-specific content, an outside e
 
 ## Source
 
-- `index.html`, `styles.css`, `script.js`: main portfolio.
+- `index.html`, `styles.css`, `script.js`: main portfolio with an ivory/lavender visual theme, editorial typography, two featured project previews, a compact project archive, filters, responsive navigation, and email-copy controls.
+- `assets/anhad-builder.svg`: original portrait-inspired voxel illustration.
+- `assets/world-preview.jpg`: an actual gameplay capture used by the large play feature.
+- `assets/favicon.svg`: portfolio tab icon.
 - `game/`: procedural Canvas 2D overhead world, Three.js first-person world, player controls, and landmark dialogs.
 - `game/flight-world.js`: chunked countryside, forests, lakes, fields and settlements beneath the entire flight corridor.
 - `game/flight-path.js`: continuous taxi, takeoff, flight and runway landing phases.
