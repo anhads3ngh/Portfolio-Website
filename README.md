@@ -1,62 +1,44 @@
-# Anhad Singh Sarna — Portfolio
+# Anhad Singh Sarna — Portfolio & Voxel World
 
-An interactive Mars outpost portfolio for software engineering, DevOps, AI and systems projects. Drive a rover between five research stations to discover the portfolio. The original editorial site is preserved at `classic/`.
-
-## Explore the outpost
-
-- Drive with WASD, arrow keys, click-to-move, or the on-screen mobile controls.
-- Press E near a station, click its building, or use the destination navigation to open it.
-- Visit all five stations to complete the discovery tracker for the current session.
-- Press Escape or the close button to return to the world.
-- Use the reset button to return the rover to the landing pad.
+A software engineering portfolio with a playable, Minecraft-inspired voxel landscape. The main portfolio is the landing page; a large illustrated **Play My World** card and hero button lead to the game at `/game/`.
 
 ## Run locally
 
-### Quickest way
-Open `index.html` in a web browser. The page works without a build step.
-
-### Recommended local development server
-
-From the `anhad-portfolio` folder:
+From the repository root:
 
 ```bash
-python3 -m http.server 8000
+python3 -m http.server 8001 --bind 127.0.0.1
 ```
 
-Then visit **http://localhost:8000**.
+Open http://localhost:8001 for the portfolio or http://localhost:8001/game/ for the world. Stop the server with Ctrl+C. No packages, API keys, build steps, or game downloads are required.
 
-Stop with `Ctrl+C`.
+## Play
 
-## Deploy to GitHub Pages
+- WASD or arrow keys: move. Shift: run. Space: jump.
+- Click the ground to walk; use bridges or jump across the stream.
+- Press E near a landmark, click its building, or use the bottom navigation to discover its story.
+- Escape or the close button returns to the world.
+- Collect eight crystals and discover five landmarks. Progress lasts for the current page session.
+- Use the day/night button, zoom controls or mouse wheel, and home button to explore at your own pace.
+- Touch controls and direct landmark navigation support mobile devices.
 
-1. Create a new repository (for example, `portfolio`).
-2. Upload **the contents of this folder** to the repository root.
-3. In **Settings → Pages**, choose **Deploy from a branch**, branch `main`, folder `/ (root)`.
-4. After GitHub Pages finishes publishing, open the provided URL.
+The cabin introduces the builder; the workshop presents projects; the academy covers professional and teaching experience; the watchtower explains the technical toolkit; the portal provides contact links.
 
-You can also use Netlify or Vercel as a static site with no build command.
+## Source
 
-## Customize
+- `index.html`, `styles.css`, `script.js`: main portfolio.
+- `game/`: procedural Canvas 2D voxel renderer, player controls, world interactions, and landmark dialogs.
+- `projects-data.js`: shared game project data. Only PulseOps and Cassandra Log Explorer link to project repositories; other projects show a title and description.
+- `assets/voxel-world.svg`: original vector illustration for the play feature.
+- `assets/Anhad_Singh_Sarna_Resume.pdf`: downloadable résumé.
+- `classic/`: alternate access to the conventional portfolio layout.
 
-- `index.html`: Game interface and accessible destination navigation.
-- `script.js`: Canvas world, rover controls, station content, and project filtering.
-- `projects-data.js`: Project descriptions, categories, and technologies. Only the two pinned repositories (PulseOps and Cassandra Log Explorer) have project links.
-- `styles.css`: Interface, station dialogs, and responsive layouts.
-- `classic/`: Original portfolio layout.
-- `assets/Anhad_Singh_Sarna_Resume.pdf`: Downloadable résumé.
+Google Fonts are optional online resources; local system fonts provide the fallback. The game world is generated locally from code without external game libraries.
 
-## Important content checks before publishing
+## Content scope
 
-- Verify your LinkedIn and GitHub accounts and every listed project.
-- **PulseOps** is a local demo with AWS infrastructure configuration, not a verified live cloud deployment.
-- Emotion-Based Music Recommender and Intelligent Study Companion are presented as exploratory work; edit or remove if not completed.
-- The résumé included here is the DevOps-targeted version from this conversation; replace it if you want a general-purpose résumé.
-- Google Fonts are requested online. The site falls back gracefully to installed system fonts when offline.
+PulseOps is a simulated delivery reliability lab, not a live social integration. Cassandra Log Explorer uses synthetic logs rather than a live Cassandra cluster. Exploratory projects are described as experiments or concepts. Toolkit entries combine professional experience, coursework, and portfolio implementations.
 
-## Stack
+## Deploy
 
-Plain HTML, CSS, JavaScript — no framework, dependencies, tracking code, or build tools.
-
-## Accessibility
-
-Semantic sections, keyboard-operable navigation, descriptive button labels, visible hover feedback, responsive layouts, and reduced-motion support.
+Serve the repository as a static website. For GitHub Pages, select the `main` branch and repository root in Settings → Pages. All application and asset links support a repository subpath.
