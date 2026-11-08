@@ -14,6 +14,7 @@ Open http://localhost:8001 for the portfolio or http://localhost:8001/game/ for 
 
 ## Play
 
+- Tap **Walk** once for hands-free forward movement, swipe the trackpad to steer, and tap **Stop walking** to stop. No holding or dragging is required.
 - First-person view starts by default. Use two-finger trackpad scrolling to walk forward/backward and sideways; move the cursor across the world to look around without holding a click. Camera turns and movement ease smoothly; moving to the left or right edge continues the turn. Touchscreens still use drag-to-look. Click walkable ground to move there. Mouse capture is not required.
 - WASD or arrow keys: move. Shift: run. Space: jump. On mobile, use the direction pad, drag to look, and tap Jump.
 - Press F or use the view button to switch between first person and the overhead map.
@@ -35,7 +36,7 @@ Open `/game/?journey=experience`, use the **Experience Portal** button, or walk 
 3. **Edmonton → Toronto:** approach the aircraft and board with E, click Take flight, or use the journey navigation. A ten-second animated flight connects the two districts; a skip option and a shorter reduced-motion version are available.
 4. **TD Terrace:** land in a separate downtown Toronto district, walk to the tower, and enter its lobby to read the TD internship chapter.
 
-Each building has a distinct 3D interior, chapter-specific content, an outside exit, and a next-step button. The journey navigation lets visitors revisit completed stops. The skyline and flight are stylized game representations.
+Each building has a distinct 3D interior, chapter-specific content, an outside exit, and a next-step button. Experience illustrations are displayed in unobstructed wall frames, with full-resolution image viewers in the chapter panels. The journey navigation lets visitors revisit completed stops. The skyline and flight are stylized game representations.
 
 
 ## Source
@@ -57,3 +58,7 @@ PulseOps is a simulated delivery reliability lab, not a live social integration.
 ## Deploy
 
 Serve the repository as a static website. For GitHub Pages, select the `main` branch and repository root in Settings → Pages. All application and asset links support a repository subpath.
+
+## Rendering
+
+Terrain uses exposed surfaces instead of buried solid cubes. Geometry is grouped into spatial chunks with per-instance color, and inactive districts and interiors are hidden. Dynamic point-light loops are avoided; render resolution adapts downward on slow frames. The HUD updates only when values change, and room textures load on entry.

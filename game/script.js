@@ -1,4 +1,5 @@
 'use strict';
+window.fppActive=new URLSearchParams(location.search).get('view')!=='map';
 const canvas=document.querySelector('#world');let ctx=canvas.getContext('2d');
 const stations=[
 {name:'The builder’s cabin',title:'The human behind the code',x:-280,y:-110,type:'cabin',color:'#e9be74'},
@@ -77,7 +78,7 @@ function update(dt){if(dialog.open||window.fppActive)return;let dx=0,dy=0;const 
  near=stations.findIndex(s=>Math.hypot(s.x-rover.x,s.y-rover.y)<125);document.querySelector('#nearby').hidden=near<0;if(near>=0)document.querySelector('#nearby-name').textContent=stations[near].name;document.querySelector('#coords').textContent=`${Math.round(rover.x)} : ${Math.round(rover.y)}`;document.querySelector('#biome').textContent=river(rover.x,rover.y)?'THE RIVER CROSSING':Math.hypot(rover.x,rover.y)>440?'THE HIGHLANDS':'THE GREENWOOD';
  crystals.forEach((c,i)=>{if(!collected.has(i)&&Math.hypot(c.x-rover.x,c.y-rover.y)<25){collected.add(i);document.querySelector('#crystals').textContent=`◇ ${collected.size} / 8`;notify(collected.size===8?'All crystals collected. Curiosity looks good on you.':`Crystal discovered · ${collected.size} / 8`);}});
 }
-function render(now){if(window.fppActive){last=now;requestAnimationFrame(render);return;}const dt=Math.min((now-last)/1000,.04);last=now;clock+=dt;update(dt);layout();const sky=ctx.createLinearGradient(0,0,0,height);sky.addColorStop(0,night?'#162d3e':'#97b9b4');sky.addColorStop(1,night?'#3b5554':'#d4dec0');ctx.fillStyle=sky;ctx.fillRect(0,0,width,height);
+function render(now){if(window.fppActive){last=now;requestAnimationFrame(render);return;}const dt=Math.min((now-last)/1000,.04);last=now;clock+=dt;if(!terrainImage)makeTerrain();update(dt);layout();const sky=ctx.createLinearGradient(0,0,0,height);sky.addColorStop(0,night?'#162d3e':'#97b9b4');sky.addColorStop(1,night?'#3b5554':'#d4dec0');ctx.fillStyle=sky;ctx.fillRect(0,0,width,height);
  // Slow, block-shaped clouds surround the terrain without covering the landmarks.
  for(let i=0;i<7;i++){const x=(noise(i,82)*width+(reduced?0:clock*3))%(width+250)-125,y=height*.15+noise(i,13)*height*.55;ctx.fillStyle=night?'#90adba0c':'#f0f0d62e';ctx.fillRect(x,y,130,25);ctx.fillRect(x+26,y-18,65,18);}
  ctx.save();ctx.translate(origin.x,origin.y);ctx.scale(scale,scale);ctx.drawImage(terrainImage,-1200,-700);if(night){polygon([project(-624,-624),project(624,-624),project(624,624),project(-624,624)],'#142f4a33');}
@@ -85,7 +86,7 @@ function render(now){if(window.fppActive){last=now;requestAnimationFrame(render)
  if(target){const p=project(target.x,target.y,elevation(target.x,target.y)+2);line([{x:p.x-10,y:p.y},{x:p.x,y:p.y-5},{x:p.x+10,y:p.y},{x:p.x,y:p.y+5},{x:p.x-10,y:p.y}],'#e7fbc2',2);}
  // A few ambient fireflies give the evening setting a quiet pulse.
  if(night)for(let i=0;i<25;i++){const p=project((noise(i,33)-.5)*1000,(noise(i,54)-.5)*1000,30+Math.sin(clock+i)*8);ctx.globalAlpha=.4+(Math.sin(clock*1.5+i)+1)*.25;ctx.fillStyle='#e2f6b0';ctx.fillRect(p.x,p.y,2,2);}ctx.globalAlpha=1;ctx.restore();requestAnimationFrame(render);}
-window.addEventListener('resize',resize);resize();makeTerrain();requestAnimationFrame(render);
+window.addEventListener('resize',resize);resize();requestAnimationFrame(render);
 canvas.addEventListener('pointerdown',e=>{if(dialog.open)return;canvas.focus({preventScroll:true});const r=canvas.getBoundingClientRect(),px=(e.clientX-r.left-origin.x)/scale,py=(e.clientY-r.top-origin.y)/scale;const hit=stations.findIndex(s=>{const p=project(s.x,s.y);return px>p.x-85&&px<p.x+85&&py>p.y-(s.type==='tower'?240:150)&&py<p.y+70;});if(hit>=0){openStation(hit);return;}target={x:Math.max(-580,Math.min(580,(px/.86+py/.44)/2)),y:Math.max(-580,Math.min(580,(py/.44-px/.86)/2))};});
 window.addEventListener('keydown',e=>{if(window.fppActive)return;if(dialog.open){if(e.key==='Escape'){e.preventDefault();dialog.close();}return;}if(e.metaKey||e.ctrlKey||e.altKey)return;const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d','e',' ','shift'].includes(k)){e.preventDefault();keys.add(k);if(k==='e'&&near>=0)openStation(near);if(k===' '&&jump===0)jumpVelocity=220;}});window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));window.addEventListener('blur',()=>{keys.clear();target=null;});
 document.querySelectorAll('[data-key]').forEach(b=>{b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);keys.add(b.dataset.key);});for(const event of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(event,()=>keys.delete(b.dataset.key));});
