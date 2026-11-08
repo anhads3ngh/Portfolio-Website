@@ -14,7 +14,7 @@ Open http://localhost:8001 for the portfolio or http://localhost:8001/game/ for 
 
 ## Play
 
-- First-person view starts by default. Click the scene to capture the mouse; move the mouse to look. Escape releases it. Drag-to-look is also supported.
+- First-person view starts by default. Use two-finger trackpad scrolling to walk forward/backward and sideways; click and drag to look around. Click walkable ground to move there. Mouse capture is not required.
 - WASD or arrow keys: move. Shift: run. Space: jump. On mobile, use the direction pad, drag to look, and tap Jump.
 - Press F or use the view button to switch between first person and the overhead map.
 - In the overhead map, click the ground to walk; use bridges or jump across the stream.
@@ -24,7 +24,19 @@ Open http://localhost:8001 for the portfolio or http://localhost:8001/game/ for 
 - Use the day/night button, zoom controls or mouse wheel, and home button to explore at your own pace.
 - Touch controls and direct landmark navigation support mobile devices.
 
-The cabin introduces the builder; the workshop presents projects; the academy covers professional and teaching experience; the watchtower explains the technical toolkit; the portal provides contact links.
+The cabin introduces the builder; the workshop presents projects; the watchtower explains the technical toolkit; the original portal provides contact links.
+
+## Experience journey
+
+Open `/game/?journey=experience`, use the **Experience Portal** button, or walk through the purple portal near spawn.
+
+1. **Home base:** approach the mansion door and press E or click Enter. Inside the furnished home office, read the Space Copy remote internship chapter. Continue to the university.
+2. **University of Alberta:** enter the academy to explore the teaching and study chapter. Continue to the campus runway.
+3. **Edmonton → Toronto:** approach the aircraft and board with E, click Take flight, or use the journey navigation. A ten-second animated flight connects the two districts; a skip option and a shorter reduced-motion version are available.
+4. **TD Terrace:** land in a separate downtown Toronto district, walk to the tower, and enter its lobby to read the TD internship chapter.
+
+Each building has a distinct 3D interior, chapter-specific content, an outside exit, and a next-step button. The journey navigation lets visitors revisit completed stops. The skyline and flight are stylized game representations.
+
 
 ## Source
 
