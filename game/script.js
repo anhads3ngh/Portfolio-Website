@@ -8,8 +8,8 @@ const stations=[
 {name:'The watchtower',title:'A toolkit for the whole journey',x:90,y:310,type:'tower',color:'#d4e9a2'},
 {name:'The connection portal',title:'The next chapter starts here',x:-300,y:280,type:'portal',color:'#b6a0ed'}];
 const rover={x:0,y:0,angle:0},keys=new Set(),visited=new Set(),collected=new Set();
-const dialog=document.querySelector('dialog'),content=document.querySelector('#station-content');
-let width=0,height=0,scale=1,zoom=1,origin={x:0,y:0},target=null,near=-1,last=0,clock=0,night=false,jump=0,jumpVelocity=0,moving=false,toastTimer,terrainImage,lastWaterHint=-10;
+const dialog=document.querySelector('#station-dialog'),content=document.querySelector('#station-content');
+let width=0,height=0,scale=1,zoom=1.3,origin={x:0,y:0},target=null,near=-1,last=0,clock=0,night=false,jump=0,jumpVelocity=0,moving=false,toastTimer,terrainImage,lastWaterHint=-10;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const crystals=[[-170,-30],[-100,-220],[170,-210],[270,100],[100,200],[-120,300],[-380,100],[390,-140]].map(([x,y])=>({x,y}));
 function project(x,y,z=0){return{x:(x-y)*.86,y:(x+y)*.44-z};}
@@ -70,7 +70,7 @@ function drawRover(){const {x,y}=rover,z=elevation(x,y);const p=project(x,y,z);e
 }
 function crystal(c,i){if(collected.has(i))return;const p=project(c.x,c.y,elevation(c.x,c.y)+20+(reduced?0:Math.sin(clock*2+i)*4));ellipse(p.x,p.y+22,8,4,'#256e6455');polygon([{x:p.x,y:p.y-11},{x:p.x+7,y:p.y},{x:p.x,y:p.y+10},{x:p.x-7,y:p.y}],'#9ee4d5');polygon([{x:p.x,y:p.y-11},{x:p.x,y:p.y+10},{x:p.x-7,y:p.y}],'#61bfb9');if(night){ctx.shadowColor='#a0efdd';ctx.shadowBlur=15;ellipse(p.x,p.y,2,2,'#c7fff0');ctx.shadowBlur=0;}}
 function resize(){width=canvas.clientWidth;height=canvas.clientHeight;const dpr=Math.min(devicePixelRatio||1,2);canvas.width=width*dpr;canvas.height=height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);}
-function layout(){scale=(width<650?.85:Math.min(width/1550,height/960))*zoom;const p=project(rover.x,rover.y);const follow=width<650?.9:.65;origin={x:width*.5-p.x*scale*follow,y:height*.54-p.y*scale*follow};}
+function layout(){scale=(width<650?1.1:Math.min(width/1550,height/960))*zoom;const p=project(rover.x,rover.y);const follow=1;origin={x:width*.5-p.x*scale*follow,y:height*.54-p.y*scale*follow};}
 function notify(message){const el=document.querySelector('#toast');el.textContent=message;el.classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('visible'),3000);}
 function update(dt){if(dialog.open||window.fppActive)return;let dx=0,dy=0;const sx=(keys.has('d')||keys.has('arrowright')?1:0)-(keys.has('a')||keys.has('arrowleft')?1:0),sy=(keys.has('s')||keys.has('arrowdown')?1:0)-(keys.has('w')||keys.has('arrowup')?1:0);if(sx||sy){target=null;dx=sx/.86+sy/.44;dy=sy/.44-sx/.86;}else if(target){dx=target.x-rover.x;dy=target.y-rover.y;if(Math.hypot(dx,dy)<6){target=null;dx=dy=0;}}
  const dist=Math.hypot(dx,dy);moving=dist>0;if(dist){const speed=keys.has('shift')?245:145,step=(sx||sy)?speed*dt:Math.min(speed*dt,dist),nx=Math.max(-580,Math.min(580,rover.x+dx/dist*step)),ny=Math.max(-580,Math.min(580,rover.y+dy/dist*step));if(!river(nx,ny)||bridge(nx,ny)){rover.x=nx;rover.y=ny;}else{target=null;moving=false;if((sx||sy)&&clock-lastWaterHint>4){notify('I’m still working on my swimming skills! Let’s use a bridge.');lastWaterHint=clock;}}}
@@ -91,8 +91,8 @@ canvas.addEventListener('pointerdown',e=>{if(dialog.open)return;canvas.focus({pr
 window.addEventListener('keydown',e=>{if(window.fppActive)return;if(dialog.open){if(e.key==='Escape'){e.preventDefault();dialog.close();}return;}if(e.metaKey||e.ctrlKey||e.altKey)return;const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d','e',' ','shift'].includes(k)){e.preventDefault();keys.add(k);if(k==='e'&&near>=0)openStation(near);if(k===' '&&jump===0)jumpVelocity=220;}});window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));window.addEventListener('blur',()=>{keys.clear();target=null;});
 document.querySelectorAll('[data-key]').forEach(b=>{b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);keys.add(b.dataset.key);});for(const event of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(event,()=>keys.delete(b.dataset.key));});
 document.querySelector('#reset').onclick=()=>{rover.x=rover.y=jump=jumpVelocity=0;target=null;keys.clear();notify('Welcome back to the spawn point.');};
-document.querySelector('#theme').onclick=()=>{night=!night;document.querySelector('#theme').textContent=night?'☀':'☾';};document.querySelector('#zoom-in').onclick=()=>zoom=Math.min(1.7,zoom+.15);document.querySelector('#zoom-out').onclick=()=>zoom=Math.max(.5,zoom-.15);
-canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.5,Math.min(1.7,zoom-e.deltaY*.001));},{passive:false});document.querySelector('#interact').onclick=()=>{if(near>=0)openStation(near);};document.querySelectorAll('[data-station]').forEach(b=>b.onclick=()=>openStation(Number(b.dataset.station)));
+document.querySelector('#theme').onclick=()=>{night=!night;document.querySelector('#theme').textContent=night?'☀':'☾';};document.querySelector('#zoom-in').onclick=()=>zoom=Math.min(2.5,zoom+.15);document.querySelector('#zoom-out').onclick=()=>zoom=Math.max(.65,zoom-.15);
+canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.65,Math.min(2.5,zoom-e.deltaY*.001));},{passive:false});document.querySelector('#interact').onclick=()=>{if(near>=0)openStation(near);};document.querySelectorAll('[data-station]').forEach(b=>b.onclick=()=>openStation(Number(b.dataset.station)));
 
 const tags=a=>`<div class="tags">${a.map(t=>`<span>${t}</span>`).join('')}</div>`;
 const card=(title,desc,tech=[],label='')=>`<article class="detail-card">${label?`<span class="eyebrow">${label}</span>`:''}<h3>${title}</h3><p>${desc}</p>${tags(tech)}</article>`;

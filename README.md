@@ -1,6 +1,6 @@
 # Anhad Singh Sarna — Portfolio & Voxel World
 
-A software engineering portfolio with a playable, Minecraft-inspired voxel landscape, a ground-level first-person 3D view, and an overhead map. The main portfolio is the landing page; a large illustrated **Play My World** card and hero button lead to the game at `/game/`.
+A software engineering portfolio with a playable, Minecraft-inspired voxel landscape, first-person and third-person 3D views, and a separate overhead map. The main portfolio is the landing page; a large illustrated **Play My World** card and hero button lead to the game at `/game/`.
 
 ## Run locally
 
@@ -17,9 +17,9 @@ Open http://localhost:8001 for the portfolio or http://localhost:8001/game/ for 
 - Tap **Walk** once for hands-free forward movement, swipe the trackpad to steer, and tap **Stop walking** to stop. No holding or dragging is required.
 - First-person view starts by default. Use two-finger trackpad scrolling to walk forward/backward and sideways; move the cursor across the world to look around without holding a click. Walking eases smoothly; camera rotation follows cursor input directly. The camera stops when cursor movement stops; screen edges never turn it automatically. Touchscreens still use drag-to-look. Click walkable ground to move there. Mouse capture is not required.
 - WASD or arrow keys: move. Shift: run. Space: jump. On mobile, use the direction pad, drag to look, and tap Jump.
-- Press F or use the view button to switch between first person and the overhead map.
+- Press F or use the view button to switch between first person and a close third-person camera. Press M or World Map for the enlarged 2D map; the view button returns to 3D. Third person uses a portrait-inspired character with animated legs and arms, and a camera that adjusts for nearby walls.
 - In the overhead map, click the ground to walk; use bridges to cross the stream. Water blocks walking, click-to-walk, and jumping, with a short swimming-skills message.
-- Press E near a landmark, click its building, or use the bottom navigation to discover its story.
+- In 3D, the bottom navigation takes you to the cabin, workshop, tower or contact portal; press E or Enter to open its content. In the overhead map, click a building to open its story. The experience portal opens the chronological journey.
 - Escape or the close button returns to the world.
 - Collect eight crystals and discover five landmarks. Progress lasts for the current page session.
 - Use the day/night button, zoom controls or mouse wheel, and home button to explore at your own pace.
@@ -38,19 +38,20 @@ Open `/game/?journey=experience`, use the **Experience Portal** button, or walk 
 
 5. **Return to Edmonton:** take the lift to G, exit the concourse, follow the glowing trail to the Toronto airstrip, and board the return flight.
 
-**Autoplay tour** walks the connected paths through all three chapters, takes both flights, rides the lifts and returns to Edmonton. Pause/resume and stop controls remain available during the journey; moving the camera, scrolling or using movement keys pauses the tour so visitors can take over. Selecting a different destination stops the tour; a new flight or lift ride remains under manual control.
+**Autoplay tour** walks the connected paths through all three chapters, reaches each physical exit doorway, continues outdoors to the next place, takes both flights, rides the lifts and returns to Edmonton. Pause/resume and stop controls remain available during the journey; moving the camera, scrolling or using movement keys pauses the tour so visitors can take over. Selecting a different destination stops the tour; a new flight or lift ride remains under manual control.
 
 Approach Anhad in each room for a chapter-specific greeting. Press E or choose a question to hear what he worked on or what stayed with him. An optional Listen button uses the browser’s speech synthesis; narration is never played automatically.
 
 The lift has working G/21 controls, a live floor indicator, and an exit control. A Trail on/off button controls the navigation path; Hide story/Show story clears the view of each room. Main navigation is disabled during flights and lift rides; Reset remains available.
 
-Each building has a distinct 3D interior, chapter-specific content, an outside exit, and a next-step button. Experience illustrations are displayed in unobstructed wall frames, with full-resolution image viewers in the chapter panels. The journey navigation lets visitors revisit completed stops. The skyline and flight are stylized game representations.
+Each building has a distinct 3D interior, chapter-specific content, an outside exit, and a next-step button. Experience illustrations are displayed in unobstructed wall frames, with full-resolution image viewers in the chapter panels. The journey navigation lets visitors revisit completed stops. The skyline, countryside and flight are stylized game representations. Flights use a damped chase camera, a compact caption panel and place labels, keeping the landscape visible.
 
 
 ## Source
 
 - `index.html`, `styles.css`, `script.js`: main portfolio.
 - `game/`: procedural Canvas 2D overhead world, Three.js first-person world, player controls, and landmark dialogs.
+- `game/flight-world.js`: chunked countryside, forests, lakes, fields and settlements beneath the entire flight corridor.
 - `game/flight-path.js`: continuous taxi, takeoff, flight and runway landing phases.
 - `game/journey-routes.js`: shared paths, corridor joins and obstacle-aware connectors.
 - `game/guided-tour.js`: optional guided journey, pausing, replay and chapter pacing.
@@ -75,7 +76,7 @@ Serve the repository as a static website. For GitHub Pages, select the `main` br
 
 ## Rendering
 
-Terrain uses exposed surfaces instead of buried solid cubes. Geometry is grouped into spatial chunks with per-instance color, and inactive districts and interiors are hidden. Dynamic point-light loops are avoided; render resolution adapts downward on slow frames. The HUD updates only when values change, and room textures load on entry.
+Terrain uses exposed surfaces instead of buried solid cubes. Geometry is grouped into spatial chunks with per-instance color, and inactive interiors are hidden. Outdoor districts stay available together, with spatial chunk culling and coarse distant scenery. Dynamic point-light loops are avoided; render resolution adapts downward on slow frames. The HUD updates only when values change, and room textures load on entry.
 
 The avatar follows the supplied portrait’s navy turban, beard, and cream/navy striped top; business attire is used in the office. Rooms, the 60-seat classroom, and the airport route are game interpretations rather than photographic or floor-plan reproductions.
 

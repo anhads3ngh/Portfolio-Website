@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {createFlightPlan} from '../flight-path.js';
 import {joinRoute,safeConnector} from '../journey-routes.js';
 import {createGuidedTour} from '../guided-tour.js';
+import {landscapeHeight} from '../flight-world.js';
 
 for(const back of [false,true])test(`${back?'Return':'Outbound'} aircraft rolls, flies an aligned final and vacates the runway`,()=>{
   const edmonton={x:1050,z:-350},toronto={x:5050,z:200};
@@ -19,6 +20,7 @@ for(const back of [false,true])test(`${back?'Return':'Outbound'} aircraft rolls,
   const landing=plan.phases.find(p=>p.name==='LANDING ROLL');assert.equal(plan.sample(landing.start).position.y,30);
   assert(Math.abs(plan.sample(landing.start).position.z-destination.z)<=500);
   const end=plan.sample(plan.duration);assert(end.done&&end.grounded);assert(Math.abs(end.position.x-destination.x)>180,'Aircraft parks off the runway');
+  for(let t=0;t<=plan.duration;t+=.1){const p=plan.sample(t).position;assert(p.x>=-5600&&p.x<=10000&&p.z>=-6000&&p.z<=6000,'Entire flight has terrain beneath it');assert(landscapeHeight(p.x,p.z)<p.y,'Background terrain clears the aircraft');}
 });
 
 test('A corridor join advances from the visitor’s nearest point',()=>{
@@ -33,10 +35,11 @@ test('A trail connector routes around a wall and water',()=>{
 });
 
 test('Guided tour visits all chapters, pauses immediately, returns and replays',()=>{
-  let room=null,flying=false,riding=false,wait=0,position={x:0,z:0};const spoken=[],flights=[];
-  const tour=createGuidedTour({clear(){},notify(){},ui(){},travel(id){room=null;position={x:0,z:0};},exit(){room=null;},enter(id){room=id;},enterLift(){room='lift';},rideLift(floor){riding=true;room=floor===21?'td':'concourse';wait=3;},fly(direction){flights.push(direction);flying=true;wait=3;},speak(id){spoken.push(id);},route(){return [[position.x,position.z],[position.x+60,position.z]];},aim(){},move(x,z){position={x:position.x+x,z:position.z+z};},state:()=>({room,flying,riding,position:{...position}})});
+  let room=null,flying=false,riding=false,wait=0,position={x:0,z:0},lastRoute='',routeEnd;const spoken=[],flights=[],exits=[];
+  const tour=createGuidedTour({clear(){},notify(){},ui(){},travel(id){room=null;position={x:0,z:0};},exit(){exits.push(lastRoute);assert(Math.hypot(position.x-routeEnd[0],position.z-routeEnd[1])<10,'Tour reaches the exit before leaving');room=null;},enter(id){room=id;},enterLift(){room='lift';},rideLift(floor){riding=true;room=floor===21?'td':'concourse';wait=3;},fly(direction){flights.push(direction);flying=true;wait=3;},speak(id){spoken.push(id);},route(id){lastRoute=id;routeEnd=[position.x+60,position.z];return [[position.x,position.z],routeEnd];},aim(){},move(x,z){position={x:position.x+x,z:position.z+z};},state:()=>({room,flying,riding,position:{...position}})});
   tour.start();tour.update(.1);tour.update(.1);tour.pause();const paused={...position};for(let i=0;i<20;i++)tour.update(.1);assert.deepEqual(position,paused);tour.resume();
   for(let i=0;i<3000&&tour.state.active;i++){if(wait&&!--wait){flying=false;riding=false;}tour.update(.1);}
   assert(tour.state.completed);assert.deepEqual(spoken,['home','university','td']);assert.deepEqual(flights,['outbound','return']);
+  assert.deepEqual(exits,['exit:home','exit:university','exit:td','exit:concourse']);
   tour.start();assert.equal(tour.state.index,0);tour.stop();assert(!tour.state.active);
 });
