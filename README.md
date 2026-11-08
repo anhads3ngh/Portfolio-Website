@@ -71,3 +71,9 @@ Terrain uses exposed surfaces instead of buried solid cubes. Geometry is grouped
 The avatar follows the supplied portrait’s navy turban, beard, and cream/navy striped top; business attire is used in the office. Rooms, the 60-seat classroom, and the airport route are game interpretations rather than photographic or floor-plan reproductions.
 
 The house, University of Alberta, and TD Terrace exteriors display the original generated PNG artwork as image-based architectural entrances. Their rooms and characters remain explorable 3D scenes. PNGs load only near their landmark; exterior frames retain the collision and entrance thresholds.
+
+## Final deployment and interaction polish
+
+GitHub Pages serves the static repository from `main` at `/`, with `.nojekyll` preserving the static assets. The site URL is https://anhads3ngh.github.io/Portfolio-Website/ and the game is under `/game/`.
+
+All portal and journey placements validate dry, unoccupied ground. Aircraft park on separate aprons, leaving both runways clear. Night mode illuminates ceiling fixtures, street lamps and ground pools using two reusable local lights. The lab includes six talkable student NPCs among its 60 seats; the office has six colleague NPCs. These are illustrative game characters.

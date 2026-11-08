@@ -6,7 +6,7 @@ export const ROOM_LAYOUT={
  lift:{halfX:95,halfZ:115,height:165,exitZ:140,spawn:{x:0,z:55,yaw:0,pitch:.05}}
 };
 
-export function createExperienceScenes({THREE,block,addToDistrict,roomOrigins,wallPoster,chapters,boxGeometry}){
+export function createExperienceScenes({THREE,block,addToDistrict,roomOrigins,wallPoster,chapters,boxGeometry,registerLight}){
  const actors=new Map(),animated=[],colorMaterials=new Map();let studentCount=0;
  const mat=(color)=>{if(!colorMaterials.has(color))colorMaterials.set(color,new THREE.MeshLambertMaterial({color}));return colorMaterials.get(color);};
  function cube(group,x,y,z,w,h,d,color){const m=new THREE.Mesh(boxGeometry,mat(color));m.position.set(x,y+h/2,z);m.scale.set(w,h,d);group.add(m);return m;}
@@ -21,11 +21,31 @@ export function createExperienceScenes({THREE,block,addToDistrict,roomOrigins,wa
   local(o,-x,0,0,10,h,z*2,wall);local(o,x,0,0,10,h,z*2,wall);
   if(id!=='td')local(o,0,0,-z,x*2,h,10,wall);
   local(o,-(x+45)/2,0,z,x-45,h,10,wall);local(o,(x+45)/2,0,z,x-45,h,10,wall);local(o,0,125,z,90,h-125,10,wall);
-  for(let a=-x+45;a<x;a+=110)local(o,a,h-4,0,65,3,18,'#ece7c9');
+  for(let a=-x+45;a<x;a+=110)for(const z0 of id==='university'?[-280,0,280]:[-95,95]){local(o,a,h-4,z0,65,3,18,'#ece7c9');registerLight({region:id+'-room',x:o.x+a,y:(o.y||0)+h-4,z:o.z+z0,floor:o.y||0,width:65,height:3,depth:18});}
  }
- function chair(o,x,z,color='#435b69'){local(o,x,24,z,34,5,32,color);local(o,x,29,z-12,34,35,7,color);local(o,x,0,z,6,24,6,'#566364');local(o,x,0,z,34,3,26,'#566364');}
+ function chair(o,x,z,color='#435b69',facing=1){local(o,x,24,z,34,5,32,color);local(o,x,29,z-12*facing,34,35,7,color);local(o,x,0,z,6,24,6,'#566364');local(o,x,0,z,34,3,26,'#566364');}
  function desk(o,x,z,w=115){local(o,x,43,z,w,6,52,'#ac9570');for(const a of [-1,1])local(o,x+a*(w/2-10),0,z,6,43,43,'#637275');local(o,x,49,z+14,w*.55,2,13,'#253740');}
  function plant(o,x,z){local(o,x,0,z,23,25,23,'#ac8b60');local(o,x,25,z,9,40,9,'#3b6c4e');local(o,x,48,z,38,22,30,'#608756');local(o,x-6,68,z-3,25,15,23,'#7d9a63');}
+ const workstations=new Map(),npcs=[];
+ function workArea(o,x,z,angle,owner,triple=false){
+  const group=new THREE.Group(),parts=[],shapes=(x,y,z,w,h,d,color)=>parts.push({x,y:y+h/2,z,w,h,d,color});
+  shapes(0,43,0,180,6,62,'#ac9570');for(const a of [-1,1])shapes(a*76,0,0,7,43,48,'#637275');shapes(0,49,17,65,2,14,'#263b42');shapes(50,49,20,20,1,21,'#54746d');shapes(50,50,20,7,4,11,'#d1d6c2');
+  shapes(0,24,-57,35,5,31,'#405a68');shapes(0,29,-71,35,35,7,'#405a68');shapes(0,0,-57,7,24,7,'#6c7f7c');shapes(0,0,-57,38,3,30,'#6c7f7c');shapes(-65,0,-8,26,39,39,'#2d4245');
+  const monitorXs=triple?[-57,0,57]:[-34,34],panels=[];
+  for(const [i,mx]of monitorXs.entries()){shapes(mx,49,-11,16,3,13,'#2e4244');shapes(mx,52,-11,5,5,5,'#688179');shapes(mx,57,-11,52,30,4,'#213638');const t=codeTexture(i===0?'PYTHON / AUTOMATION':i===1?'BUILD / DELIVERY':'TERMINAL',i===0?['def build_with_care():','  validate_inputs()','  trace_the_logs()','  test_the_edges()']:['checks: passed','Jenkins · Git','API · SQL · Logs']);const plane=new THREE.Mesh(new THREE.PlaneGeometry(48,26),new THREE.MeshBasicMaterial({map:t,toneMapped:false}));plane.position.set(mx,72,-8.5);group.add(plane);panels.push(plane);}
+  const mesh=new THREE.InstancedMesh(boxGeometry,new THREE.MeshLambertMaterial({color:'#ffffff'}),parts.length),d=new THREE.Object3D();parts.forEach((p,i)=>{d.position.set(p.x,p.y,p.z);d.scale.set(p.w,p.h,p.d);d.updateMatrix();mesh.setMatrixAt(i,d.matrix);mesh.setColorAt(i,new THREE.Color(p.color));});mesh.computeBoundingSphere();group.add(mesh);group.position.set(o.x+x,o.y||0,o.z+z);group.rotation.y=angle;addToDistrict(group,o.id+'-room');
+  const px=x-Math.sin(angle)*57,pz=z-Math.cos(angle)*57,person=avatar(owner,o,px,pz,{sitting:true,suit:owner==='td'});person.rotation.y=angle;
+  workstations.set(owner,{group,person,screens:panels,angle});
+ }
+ function npcPerson(o,x,z,index,name,message,seated=true,facing=Math.PI){
+  const group=new THREE.Group(),parts=[],p=(x,y,z,w,h,d,c)=>parts.push({x,y:y+h/2,z,w,h,d,c}),skin=['#c99a72','#9a684b','#d5b18c','#b88b64'][index%4],shirt=['#547480','#8b756e','#65836d','#7b7189','#a28c64'][index%5];
+  for(const a of [-1,1]){p(a*6,5,seated?16:0,9,21,10,'#354c61');p(a*6,0,seated?19:3,10,6,15,'#263937');}p(0,28,0,24,26,16,shirt);p(-17,31,8,8,20,10,shirt);p(17,31,8,8,20,10,shirt);p(-17,27,11,8,7,10,skin);p(17,27,11,8,7,10,skin);
+  const mesh=new THREE.InstancedMesh(boxGeometry,new THREE.MeshLambertMaterial({color:'#ffffff'}),parts.length),d=new THREE.Object3D();parts.forEach((q,i)=>{d.position.set(q.x,q.y,q.z);d.scale.set(q.w,q.h,q.d);d.updateMatrix();mesh.setMatrixAt(i,d.matrix);mesh.setColorAt(i,new THREE.Color(q.c));});mesh.computeBoundingSphere();group.add(mesh);
+  const head=new THREE.Group();cube(head,0,54,0,19,19,19,skin);cube(head,0,70,0,21,6,21,index%3?'#3b3931':'#715642');cube(head,-4,64,10,2,3,1,'#24332d');cube(head,4,64,10,2,3,1,'#24332d');group.add(head);group.position.set(o.x+x,o.y||0,o.z+z);group.rotation.y=facing;addToDistrict(group,o.id+'-room');
+  npcs.push({id:o.id+'-'+index,name,message,room:o.id,x:o.x+x,z:o.z+z,head,group,base:facing});return group;
+ }
+ function nearbyNpc(x,z,room,radius=100){let result=null,best=radius;for(const npc of npcs){if(npc.room!==room)continue;const distance=Math.hypot(npc.x-x,npc.z-z);if(distance<best){best=distance;result=npc;}}return result;}
+
  function avatar(id,o,x,z,{suit=false,sitting=false,teaching=false}={}){
   const group=new THREE.Group(),parts=[];const part=(x,y,z,w,h,d,color,rz=0)=>parts.push({x,y:y+h/2,z,w,h,d,color,rz});
   const skin='#ba875d',navy='#252d54',cream='#ece4cd';
@@ -44,19 +64,18 @@ export function createExperienceScenes({THREE,block,addToDistrict,roomOrigins,wa
   // Bedroom and workstation are one lived-in room, with space for the visitor to walk.
   local(o,160,0,-130,125,18,180,'#7f735b');local(o,160,18,-130,122,12,174,'#e6dfc7');local(o,160,30,-105,122,6,117,'#374961');local(o,160,30,-187,101,10,40,'#e9e4ce');local(o,160,0,-220,134,65,8,'#806b4b');
   local(o,250,0,-25,40,75,90,'#9a8862');for(let y=10;y<70;y+=20)local(o,228,y,-25,2,2,75,'#d3c19c');
-  desk(o,-70,-5,165);chair(o,-70,-63);display(o,-116,68,-4,45,29,'PULSEOPS',['worker.process(job)','retry_with_backoff()','status = "healthy"']);display(o,-60,71,-5,51,35,'WORKSTATION',['def build_something():','  learn()','  test()','  ship()']);display(o,-2,68,-4,42,29,'TERMINAL',['tests passed','build: ready','curiosity: always on']);
-  desk(o,-210,-5,65);avatar('home',o,-225,-40,{sitting:true});local(o,-10,50,13,10,13,10,'#eee5ce');local(o,-10,63,13,8,1,8,'#624c37');local(o,-146,50,8,18,4,18,'#5e7c72');plant(o,-220,-65);
+  workArea(o,-85,-20,-.55,'home',true);plant(o,-225,-130);
   local(o,-90,0,-220,130,85,12,'#927b58');for(let h=10;h<85;h+=22)for(let i=0;i<9;i++)local(o,-145+i*13,h,-210,9,18,12,['#6c8f82','#b09464','#6d6082'][i%3]);
   // A window with a simple pixel forest view uses one texture, not another live scene.
   display(o,270,105,80,90,75,'EVENING IN EDMONTON',['  *        .','   /\\   /\\','  /__\\ /__\\','a little space to build'], -Math.PI/2);
  }
- function student(o,x,z,i){const skin=['#d1a77c','#ad7952','#e1b993','#8c6247'][i%4],top=['#566c80','#7b8c68','#9c8062','#8a7184','#4b7779'][i%5];
-  local(o,x,18,z+27,18,11,22,'#354c60');local(o,x,29,z+24,22,23,15,top);local(o,x,54,z+24,18,18,18,skin);local(o,x,69,z+24,20,6,20,i%3?'#443d34':'#785c42');local(o,x-15,40,z+10,8,8,30,top);local(o,x+15,40,z+10,8,8,30,top);
+ function student(o,x,z,i,npc=false){const skin=['#d1a77c','#ad7952','#e1b993','#8c6247'][i%4],top=['#566c80','#7b8c68','#9c8062','#8a7184','#4b7779'][i%5];
+  if(!npc){local(o,x,18,z+27,18,11,22,'#354c60');local(o,x,29,z+24,22,23,15,top);local(o,x,54,z+24,18,18,18,skin);local(o,x,69,z+24,20,6,20,i%3?'#443d34':'#785c42');local(o,x-15,40,z+10,8,8,30,top);local(o,x+15,40,z+10,8,8,30,top);}
   local(o,x,0,z+30,6,20,6,'#4f6265');local(o,x,21,z+30,30,5,25,'#536d76');local(o,x,26,z+42,30,27,6,'#536d76');
  }
  function buildUniversity(o){shell(o,'university','#b8c1af');local(o,0,0,-330,340,7,150,'#84977f');
   const texture=codeTexture('PYTHON LAB',['for student in classroom:','    ask_good_questions()','    trace_the_algorithm()','    test_the_edge_cases()'], '#d9ed91'),screenMat=new THREE.MeshBasicMaterial({map:texture,toneMapped:false}),screens=new THREE.InstancedMesh(new THREE.PlaneGeometry(34,23),screenMat,60),d=new THREE.Object3D();
-  let i=0;for(let row=0;row<6;row++)for(let col=0;col<10;col++){const x=col<5?-365+col*75:65+(col-5)*75,z=-210+row*98;desk(o,x,z,58);student(o,x,z,i);local(o,x,49,z-8,37,27,4,'#293d43');d.position.set(o.x+x,(o.y||0)+63,o.z+z-5.5);d.updateMatrix();screens.setMatrixAt(i,d.matrix);i++;}studentCount=i;screens.computeBoundingSphere();addToDistrict(screens,'university-room');
+  let i=0;for(let row=0;row<6;row++)for(let col=0;col<10;col++){const x=col<5?-365+col*75:65+(col-5)*75,z=-210+row*98;desk(o,x,z,58);const isNpc=[4,9,18,27,36,48].includes(i);student(o,x,z,i,isNpc);if(isNpc)npcPerson(o,x,z+24,i,'Computing Science student','I’m tracing this Python example. A small test case makes the edge cases easier to see.');local(o,x,49,z-8,37,27,4,'#293d43');d.position.set(o.x+x,(o.y||0)+63,o.z+z-5.5);d.updateMatrix();screens.setMatrixAt(i,d.matrix);i++;}studentCount=i;screens.computeBoundingSphere();addToDistrict(screens,'university-room');
   display(o,0,150,-435,360,150,'CMPUT / PYTHON · THINK OUT LOUD',['def explain(solution):','    break_it_into_steps()','    check_your_assumptions()','    try_an_edge_case()','    make_it_click()']);
   desk(o,-115,-320,115);display(o,-115,69,-332,57,35,'TEACHING NOTES',['Python · algorithms','Questions welcome','One step at a time']);avatar('university',o,30,-325,{teaching:true});
   for(const a of [-1,1])for(let z=-250;z<350;z+=180){local(o,a*484,70,z,4,100,120,'#7da4a3');local(o,a*481,118,z,4,5,120,'#d8decb');}
@@ -74,13 +93,13 @@ export function createExperienceScenes({THREE,block,addToDistrict,roomOrigins,wa
   // Floor 21 looks out across a small, culled skyline backdrop.
   local(o,0,0,-340,740,25,10,'#8b9f96');for(let x=-350;x<360;x+=85){local(o,x,25,-340,5,170,8,'#c3d3c8');local(o,x,190,-340,85,10,8,'#c3d3c8');}
   for(let i=0;i<11;i++){const x=-340+i*65,h=400+(i%4)*90;block(o.x+x,0,o.z-500,45,h,65,i%2?'#68898a':'#8a9c95');for(let y=320;y<h;y+=35)block(o.x+x,y,o.z-466,23,14,2,'#c1cbaa');}
-  desk(o,-75,-90,165);chair(o,-75,-146,'#344a58');display(o,-122,71,-92,52,35,'PYTHON AUTOMATION',['def deliver_safely():','  validate_inputs()','  trace_the_logs()','  run_the_tests()']);display(o,-55,71,-92,61,35,'BUILD / DELIVERY',['CI checks: passed','Jenkins · Git','API · SQL · Logs']);desk(o,-188,-82,65);avatar('td',o,-193,-130,{suit:true,sitting:true});
-  for(let i=0;i<4;i++){desk(o,180,-170+i*95,110);chair(o,180,-125+i*95,'#51686b');display(o,180,67,-178+i*95,43,28,'ENGINEERING',['build · test · ship']);}
+  workArea(o,-155,-100,-.65,'td');
+  for(let i=0;i<4;i++){desk(o,180,-170+i*95,110);chair(o,180,-125+i*95,'#51686b',-1);display(o,180,67,-178+i*95,43,28,'ENGINEERING',['build · test · ship']);npcPerson(o,180,-125+i*95,i,'Engineering colleague',['The CI checks passed. Let’s review the logs before shipping.','An API trace and a SQL query can tell two parts of the same story.','A clear code review helps the next engineer understand the change.','Reliable automation starts with a repeatable test.'][i]);}
   local(o,-250,0,65,110,27,44,'#667c71');local(o,-250,27,80,110,30,10,'#667c71');plant(o,315,240);plant(o,-310,-220);
-  local(o,265,0,260,140,60,48,'#849a85');local(o,265,60,260,148,6,55,'#d8d2b8');local(o,260,66,260,27,32,24,'#293d43');local(o,260,98,260,25,3,23,'#738e82');
+  local(o,265,0,260,140,60,48,'#849a85');local(o,265,60,260,148,6,55,'#d8d2b8');local(o,260,66,260,27,32,24,'#293d43');local(o,260,98,260,25,3,23,'#738e82');npcPerson(o,205,190,4,'Coffee-break colleague','Coffee first, then one more test run.',false,Math.PI/2);npcPerson(o,-250,95,5,'Software engineer','Good handoffs start with clear notes and reproducible steps.',true,0);
  }
  function buildLift(o){shell(o,'lift','#8caaa6');for(const a of [-1,1])local(o,a*90,70,0,4,7,200,'#d3d9ca');local(o,0,0,-109,115,135,5,'#b5c6c2');local(o,0,0,-105,3,135,3,'#617e7b');display(o,0,145,-105,100,26,'LIFT · G → 21',['YOUR NEXT CHAPTER']);}
  function buildRoom(id){const o={...roomOrigins[id],id};if(id==='home')buildHome(o);if(id==='university')buildUniversity(o);if(id==='concourse')buildConcourse(o);if(id==='td')buildOffice(o);if(id==='lift')buildLift(o);if(chapters[id]?.image&&ROOM_LAYOUT[id].poster)wallPoster(o,chapters[id].image,id);}
- function animate(t,room){for(const a of animated){if(a.id!==room)continue;if(a.teaching){a.arms[0].rotation.x=-1.3+Math.sin(t*1.5)*.22;a.arms[0].rotation.z=-.3;a.arms[1].rotation.x=-.3;}else{a.arms[0].rotation.x=-1.05+Math.sin(t*7)*.09;const phase=(t%10)/10,sip=a.suit&&phase>.65?Math.sin((phase-.65)/.35*Math.PI):0;a.arms[1].rotation.x=-1.05-sip*1.4+(sip===0?Math.sin(t*6+.8)*.08:0);}}}
- return {buildRoom,animate,actors,get studentCount(){return studentCount;}};
+ function animate(t,room){for(const npc of npcs)if(npc.room===room)npc.head.rotation.y=Math.sin(t*.8+npc.x)*.12;for(const a of animated){if(a.id!==room)continue;if(a.teaching){a.arms[0].rotation.x=-1.3+Math.sin(t*1.5)*.22;a.arms[0].rotation.z=-.3;a.arms[1].rotation.x=-.3;}else{a.arms[0].rotation.x=-1.05+Math.sin(t*7)*.09;const phase=(t%10)/10,sip=a.suit&&phase>.65?Math.sin((phase-.65)/.35*Math.PI):0;a.arms[1].rotation.x=-1.05-sip*1.4+(sip===0?Math.sin(t*6+.8)*.08:0);}}}
+ return {buildRoom,animate,actors,workstations,npcs,nearbyNpc,get studentCount(){return studentCount;}};
 }
