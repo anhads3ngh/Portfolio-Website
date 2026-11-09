@@ -33,3 +33,5 @@ body:has(#lift-panel:not([hidden])) .walk-control,body:has(#lift-panel:not([hidd
 .tour-chapter-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px}#chapter-count{font:7px var(--mono);color:#b7d1a0;white-space:nowrap}#tour-next,#npc-done{background:#c9ed9c;border:0;border-radius:4px;color:#1a3022;font:8px/1.5 var(--mono);padding:9px 11px}#tour-next:disabled{opacity:.4;cursor:default}#tour-next[hidden]{display:none!important}#npc-done{margin-top:17px;display:block;width:100%;font-size:10px;padding:12px}.journey-stops button.current{outline:1px solid #d9efb6;outline-offset:2px}.tour-active.tour-paused #npc-dialogue{border-color:#deefad}#dialogue-listen{display:inline-block;margin-top:10px}@media(max-width:650px){#tour-next{font-size:7px;padding:8px}#npc-done{font-size:9px}}
 
 @media(max-width:700px){body.tour-active:not(.tour-paused):not(:has(#npc-dialogue:not([hidden]))) #journey-hud{display:block}}
+
+.tour-active:not(.tour-paused) .walk-control{display:none}
