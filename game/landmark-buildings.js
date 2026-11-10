@@ -210,10 +210,11 @@ export function createLandmarkBuildings({THREE,block,collision,lamp,addToDistric
         b(x+xx,y,z+zz,bay+.4,23,depth,glass[(floor+col)%4]);b(x+xx,y,z+zz,bay+.8,2,depth+2,'#86a5aa');
         b(x+xx,y+4,z+front+1,bay-2,16,2,glass[(floor+col+1)%4]);b(x+xx+bay/2,y,z+front+2,1.6,24,3,metal);
         b(x+xx,y+4,z-90,bay-2,16,2,glass[(floor+col+2)%4]);
+        if((floor+col)%4!==0){registerLight({region:'toronto',x:x+xx,y:y+12,z:z+front+3.5,width:bay-5,height:13,depth:1,glow:false,pool:false});registerLight({region:'toronto',x:x+xx,y:y+12,z:z-91.5,width:bay-5,height:13,depth:1,glow:false,pool:false});}
         if(floor%3===1&&(col===2||col===6||col===8)){b(x+xx,y+5,z+front+2,bay-5,9,2,'#c9b482');registerLight({region:'toronto',x:x+xx,y:y+9.5,z:z+front+3.2,floor:0,width:bay-5,height:9,depth:1,glow:false});}
         if(floor===22){b(x+xx+5,y+20,z+front+21,bay+3,5,55,'#d0d4c4');if(col%2===0)registerLight({region:'toronto',x:x+xx,y:y+18,z:z+front+39,floor:0,width:8,height:2,depth:8});}
       }
-      for(let col=0;col<5;col++){const zz=-70+col*25;b(x+152,y+4,z+zz,2,16,22,glass[(floor+col)%4]);b(x+155,y,z+zz+12,3,24,1.5,metal);}
+      for(let col=0;col<5;col++){const zz=-70+col*25;b(x+152,y+4,z+zz,2,16,22,glass[(floor+col)%4]);b(x+155,y,z+zz+12,3,24,1.5,metal);if((floor+col)%3!==0)registerLight({region:'toronto',x:x+153.5,y:y+12,z:z+zz,width:1,height:13,depth:19,glow:false,pool:false});}
       // West-side stepped fins and exposed stone edges continue around the back.
       b(x+left-2,y,z-3,3,24,172,'#acc3c5');
     }

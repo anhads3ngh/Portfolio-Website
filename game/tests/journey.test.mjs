@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createFlightPlan} from '../flight-path.js';
-import {joinRoute,safeConnector} from '../journey-routes.js';
+import {joinRoute,safeConnector,EXPERIENCE_ROUTES} from '../journey-routes.js';
 import {createGuidedTour} from '../guided-tour.js';
 import {landscapeHeight,MOUNTAIN_PEAKS} from '../flight-world.js';
-import {CITY_CITIZENS,CITY_LANDMARKS,CITY_FLIGHT_OBSTACLES,cityRiver,inEdmontonCity} from '../city-layout.js';
+import {CITY_CITIZENS,CITY_LANDMARKS,CITY_FLIGHT_OBSTACLES,CITY_TRAFFIC,CAMPUS_BUILDINGS,CAMPUS_ROADS,VEHICLE_DIMENSIONS,cityRiver,inEdmontonCity} from '../city-layout.js';
+import {inAirfield,onRunway,routeAvoidsAirfields,trafficPosition,createAirspaceAudit} from '../airspace.js';
 import {createPointerLook,createTrackpadOrbit,turnTowards,wrapAngle} from '../camera-controls.js';
 
 for(const back of [false,true])test(`${back?'Return':'Outbound'} aircraft rolls, flies an aligned final and vacates the runway`,()=>{
@@ -91,7 +92,36 @@ test('Deliberate TPP trackpad gestures can orbit through full revolutions withou
 });
 
 test('City landmarks and stationary citizens stay in their intended districts',()=>{
-  assert.equal(CITY_CITIZENS.length,22);assert.equal(new Set(CITY_CITIZENS.map(c=>c.id)).size,22);
+  assert.equal(CITY_CITIZENS.length,28);assert.equal(new Set(CITY_CITIZENS.map(c=>c.id)).size,28);
   for(const c of CITY_CITIZENS){assert(c.message&&c.name);assert(c.zone==='toronto'?c.x>=3700&&c.x<=5300&&Math.abs(c.z)<800:Math.abs(c.x)<=1450&&Math.abs(c.z)<=1450||inEdmontonCity(c.x,c.z));assert(!cityRiver(c.x,c.z),'Citizens are not in the river');}
   const b=CITY_LANDMARKS.walterdale;assert(cityRiver(b.x,b.z));assert(b.length>400&&b.archHeight>100);assert(CITY_LANDMARKS.cnTower.height>800);
+});
+
+
+test('Pedestrians and every traffic route remain outside runway, taxiway and apron bounds',()=>{
+ for(const c of CITY_CITIZENS)assert(!inAirfield(c.x,c.z,20),c.id);
+ for(const route of CITY_TRAFFIC){assert(routeAvoidsAirfields(route),route.id);for(let t=0;t<500;t+=.37){const p=trafficPosition(route,t);assert(!inAirfield(p.x,p.z,route.axis==='x'?route.dimensions.length/2:route.dimensions.width/2,route.axis==='x'?route.dimensions.width/2:route.dimensions.length/2),route.id);}}
+ assert(!routeAvoidsAirfields({...CITY_TRAFFIC[0],x:5050,z:620,length:400}),'A route crossing a runway must fail validation');
+});
+
+test('Cars have passenger-car proportions relative to the 75.7-unit explorer',()=>{
+ const c=VEHICLE_DIMENSIONS.car;assert(c.length>75.7*2);assert(c.width>21.9*2.5);assert(c.height>75.7*.75&&c.height<75.7);assert(VEHICLE_DIMENSIONS.bus.height>75.7);
+});
+
+test('Four campus buildings leave the airfield and connected journey corridors clear',()=>{
+ assert.equal(CAMPUS_BUILDINGS.length,4);for(const b of CAMPUS_BUILDINGS){assert(!inAirfield(b.x,b.z,b.w/2,b.d/2));assert(b.z+b.d/2<0);assert(b.height>100);}
+ assert.equal(CAMPUS_ROADS.length,2);
+});
+
+test('Flight audit catches actual mesh-sized obstacles and respects the aircraft component shapes',()=>{
+ const plan={duration:1,sample(){return {position:{x:0,y:30,z:0},heading:0,pitch:0,bank:0,phase:'TAXI TO RUNWAY'};}};
+ assert(createAirspaceAudit([[0,30,0,15,60,15]])(plan).length>0,'Fuselage hitting a building is detected');
+ assert(createAirspaceAudit([[80,27,5,10,8,10]])(plan).length>0,'Wing clearance is checked');
+ assert.equal(createAirspaceAudit([[80,4,5,5,6,5]])(plan).length,0,'A low light beneath a wing is not a tall obstacle');
+ assert.equal(createAirspaceAudit([[0,1,0,500,2,1000]])(plan).length,0,'Runway contact is permitted');
+});
+
+
+test('Passenger trails go around runway thresholds instead of crossing the active strip',()=>{
+ for(const id of ['flight','campus-return','td','return-flight']){const points=EXPERIENCE_ROUTES[id];for(let i=1;i<points.length;i++)for(let t=0;t<=1;t+=.01){const x=points[i-1][0]+(points[i][0]-points[i-1][0])*t,z=points[i-1][1]+(points[i][1]-points[i-1][1])*t;assert(!onRunway(x,z,12),id+' crosses a runway');}}
 });

@@ -1,4 +1,5 @@
-import {inEdmontonCity,inTorontoCity,cityRiver} from './city-layout.js?v=15';
+import {inApproachCorridor} from './airspace.js?v=16';
+import {inEdmontonCity,inTorontoCity,cityRiver} from './city-layout.js?v=16';
 const noise=(x,z)=>{const n=Math.sin(x*127.1+z*311.7)*43758.5453;return n-Math.floor(n);};
 const core=(x,z)=>inEdmontonCity(x,z)||inTorontoCity(x,z)||(Math.abs(x)<1690&&Math.abs(z)<1690)||(x>3500&&x<5500&&Math.abs(z)<960);
 const water=(x,z)=>cityRiver(x,z)||(x>1700&&x<3500&&Math.abs(z)<1800)||((x+1700)/720)**2+((z-2600)/970)**2<1||((x-6600)/650)**2+((z-2400)/900)**2<1;
@@ -12,7 +13,7 @@ export function landscapeHeight(x,z){
   return Math.round((hills+mountains)/18)*18-25;
 }
 
-export function createFlightWorld({THREE,addToDistrict,material,boxGeometry}){
+export function createFlightWorld({THREE,addToDistrict,material,boxGeometry,registerLight}){
   const chunks=new Map(),bits=new Map(),step=240,bounds={minX:-5600,maxX:10000,minZ:-6000,maxZ:6000};
   const groundMaterial=material('#ffffff').clone();groundMaterial.vertexColors=true;groundMaterial.map=null;
   const quad=(points,color)=>{
@@ -34,12 +35,12 @@ export function createFlightWorld({THREE,addToDistrict,material,boxGeometry}){
   // the entire flight, while detailed portfolio districts retain their meshes.
   for(let i=0;i<650;i++){
     const x=-3800+noise(i,17)*12600,z=-4500+noise(i,23)*9000;
-    if(core(x,z)||water(x,z)||((Math.abs(x-1050)<250||Math.abs(x-5050)<250)&&Math.abs(z)<3000))continue;
+    if(core(x,z)||water(x,z)||inApproachCorridor(x,z,40))continue;
     const y=surfaceHeight(x,z),h=38+noise(i,43)*38;if(y>280)continue;
     box(x,y,z,9,h,9,'#776345');box(x,y+h*.6,z,45,h*.7,45,i%2?'#4a714c':'#5d8051');
   }
   for(const [cx,cz]of [[-900,-2300],[1900,-2600],[3900,2700],[6600,-1300],[7200,1900]]){
-    for(let i=0;i<15;i++){const x=cx+(i%5-2)*100,z=cz+(Math.floor(i/5)-1)*115,y=surfaceHeight(x,z);if(water(x,z)||y>180)continue;box(x,y,z,60,34,48,'#c6bc9b');box(x,y+34,z,67,9,55,i%2?'#6d6150':'#476b60');}
+    for(let i=0;i<15;i++){const x=cx+(i%5-2)*100,z=cz+(Math.floor(i/5)-1)*115,y=surfaceHeight(x,z);if(water(x,z)||y>180||inApproachCorridor(x,z,45))continue;box(x,y,z,60,34,48,'#c6bc9b');box(x,y+34,z,67,9,55,i%2?'#6d6150':'#476b60');for(const dx of [-16,16]){box(x+dx,y+11,z+25,13,15,2,'#7a9f9e');registerLight?.({region:'landscape',x:x+dx,y:y+18.5,z:z+26.3,width:12,height:13,depth:1,glow:false,pool:false});}}
     for(let i=-8;i<=8;i++){const x=cx+i*55,z=cz+245,y=surfaceHeight(x,z);if(y>140)continue;box(x,y+.4,z,57,2,36,'#827e65');}
   }
   const d=new THREE.Object3D(),palette=new Map();let boxCount=0;
@@ -47,5 +48,5 @@ export function createFlightWorld({THREE,addToDistrict,material,boxGeometry}){
     const mesh=new THREE.InstancedMesh(boxGeometry,material('#ffffff'),list.length);
     list.forEach((p,i)=>{d.position.set(p.x,p.y,p.z);d.scale.set(p.w,p.h,p.d);d.updateMatrix();mesh.setMatrixAt(i,d.matrix);if(!palette.has(p.color))palette.set(p.color,new THREE.Color(p.color));mesh.setColorAt(i,palette.get(p.color));});mesh.computeBoundingSphere();addToDistrict(mesh,'landscape');boxCount+=list.length;
   }
-  return {bounds,terrainChunks:chunks.size,boxes:boxCount,mountains:MOUNTAIN_PEAKS};
+  return {bounds,terrainChunks:chunks.size,boxes:boxCount,mountains:MOUNTAIN_PEAKS,obstacles:[...bits.values()].flat().map(p=>[p.x,p.y,p.z,p.w,p.h,p.d])};
 }

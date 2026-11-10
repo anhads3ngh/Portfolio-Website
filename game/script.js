@@ -11,7 +11,7 @@ const rover={x:0,y:0,angle:0},keys=new Set(),visited=new Set(),collected=new Set
 const dialog=document.querySelector('#station-dialog'),content=document.querySelector('#station-content');
 let width=0,height=0,scale=1,zoom=1.3,origin={x:0,y:0},target=null,near=-1,last=0,clock=0,night=false,jump=0,jumpVelocity=0,moving=false,toastTimer,terrainImage,lastWaterHint=-10;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-const crystals=[[-170,-30],[-100,-220],[170,-210],[270,100],[100,200],[-120,300],[-380,100],[390,-140]].map(([x,y])=>({x,y}));
+const crystals=[[-170,-30],[-100,-220],[170,-210],[270,100],[100,200],[-120,300],[-380,100],[330,-200]].map(([x,y])=>({x,y}));
 function project(x,y,z=0){return{x:(x-y)*.86,y:(x+y)*.44-z};}
 function polygon(points,fill,stroke){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=.6;ctx.stroke();}}
 function ellipse(x,y,rx,ry,color){ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();}
