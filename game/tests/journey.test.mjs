@@ -4,7 +4,8 @@ import {createFlightPlan} from '../flight-path.js';
 import {joinRoute,safeConnector} from '../journey-routes.js';
 import {createGuidedTour} from '../guided-tour.js';
 import {landscapeHeight,MOUNTAIN_PEAKS} from '../flight-world.js';
-import {createPointerLook,turnTowards,wrapAngle} from '../camera-controls.js';
+import {CITY_CITIZENS,CITY_LANDMARKS,CITY_FLIGHT_OBSTACLES,cityRiver,inEdmontonCity} from '../city-layout.js';
+import {createPointerLook,createTrackpadOrbit,turnTowards,wrapAngle} from '../camera-controls.js';
 
 for(const back of [false,true])test(`${back?'Return':'Outbound'} aircraft rolls, flies an aligned final and vacates the runway`,()=>{
   const edmonton={x:1050,z:-350},toronto={x:5050,z:200};
@@ -22,7 +23,7 @@ for(const back of [false,true])test(`${back?'Return':'Outbound'} aircraft rolls,
   const landing=plan.phases.find(p=>p.name==='LANDING ROLL');assert.equal(plan.sample(landing.start).position.y,30);
   assert(Math.abs(plan.sample(landing.start).position.z-destination.z)<=500);
   const end=plan.sample(plan.duration);assert(end.done&&end.grounded);assert(Math.abs(end.position.x-destination.x)>180,'Aircraft parks off the runway');
-  for(let t=0;t<=plan.duration;t+=.1){const p=plan.sample(t).position;assert(p.x>=-5600&&p.x<=10000&&p.z>=-6000&&p.z<=6000,'Entire flight has terrain beneath it');assert(landscapeHeight(p.x,p.z)<p.y,'Background terrain clears the aircraft');}
+  for(let t=0;t<=plan.duration;t+=.1){const p=plan.sample(t).position;assert(p.x>=-5600&&p.x<=10000&&p.z>=-6000&&p.z<=6000,'Entire flight has terrain beneath it');assert(landscapeHeight(p.x,p.z)<p.y,'Background terrain clears the aircraft');for(const b of CITY_FLIGHT_OBSTACLES)assert(!(Math.abs(p.x-b.x)<b.w/2+95&&Math.abs(p.z-b.z)<b.d/2+75&&p.y<b.height+30&&p.y+30>b.minY),'Aircraft and wing clearance around city towers');}
 });
 
 test('A corridor join advances from the visitor’s nearest point',()=>{
@@ -77,4 +78,20 @@ test('Pointer look stays bounded through repeated events, resets safely, and nev
 
 test('Mountain ranges have snowy-height peaks beyond the protected runway corridors',()=>{
   assert.equal(MOUNTAIN_PEAKS.length,5);for(const peak of MOUNTAIN_PEAKS)assert(landscapeHeight(peak.x,peak.z)>600);assert.equal(landscapeHeight(5050,1600),-30);
+});
+
+
+test('Deliberate TPP trackpad gestures can orbit through full revolutions without a position command',()=>{
+  const control=createTrackpadOrbit();let yaw=0,total=0;
+  for(let i=0;i<120;i++){const result=control.move({deltaX:12,deltaY:.4,time:i*8,yaw});assert(result.orbit);total+=wrapAngle(result.yaw-yaw);yaw=result.yaw;}
+  assert(Math.abs(total)>Math.PI*2,'Intentional horizontal swipes complete a full 360 turn');
+  const walk=control.move({deltaX:.1,deltaY:20,time:2000,yaw});assert(!walk.orbit);assert.equal(walk.yaw,yaw,'Vertical gestures preserve walking');
+  const shifted=control.move({deltaX:0,deltaY:25,shiftKey:true,time:2300,yaw});assert(shifted.orbit);assert.notEqual(shifted.yaw,yaw,'Shift enables orbit using a vertical swipe');
+  control.reset();const zero=control.move({deltaX:0,deltaY:0,time:3000,yaw});assert(!zero.orbit);assert.equal(zero.yaw,yaw,'There is no autonomous rotation');
+});
+
+test('City landmarks and stationary citizens stay in their intended districts',()=>{
+  assert.equal(CITY_CITIZENS.length,22);assert.equal(new Set(CITY_CITIZENS.map(c=>c.id)).size,22);
+  for(const c of CITY_CITIZENS){assert(c.message&&c.name);assert(c.zone==='toronto'?c.x>=3700&&c.x<=5300&&Math.abs(c.z)<800:Math.abs(c.x)<=1450&&Math.abs(c.z)<=1450||inEdmontonCity(c.x,c.z));assert(!cityRiver(c.x,c.z),'Citizens are not in the river');}
+  const b=CITY_LANDMARKS.walterdale;assert(cityRiver(b.x,b.z));assert(b.length>400&&b.archHeight>100);assert(CITY_LANDMARKS.cnTower.height>800);
 });

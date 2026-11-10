@@ -35,3 +35,6 @@ body:has(#lift-panel:not([hidden])) .walk-control,body:has(#lift-panel:not([hidd
 @media(max-width:700px){body.tour-active:not(.tour-paused):not(:has(#npc-dialogue:not([hidden]))) #journey-hud{display:block}}
 
 .tour-active:not(.tour-paused) .walk-control{display:none}
+
+#city-greeting{position:fixed;transform:translate(-50%,-100%);width:238px;max-width:88vw;border:1px solid #cee6a966;border-radius:12px 12px 12px 3px;padding:12px 15px;background:#16342cef;box-shadow:0 8px 25px #09262033;pointer-events:none;z-index:2}#city-greeting[hidden]{display:none}#city-greeting strong{display:block;color:#d5efac;font:9px var(--mono);margin-bottom:6px}#city-greeting span{display:block;font:11px/1.6 'DM Sans',sans-serif;color:#e2ecd7}@media(max-width:650px){#city-greeting{width:210px;padding:10px 12px}#city-greeting span{font-size:10px}}
+@media(max-width:700px){#city-greeting{left:50%!important;top:auto!important;bottom:285px;transform:translateX(-50%);width:238px}}

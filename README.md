@@ -17,6 +17,7 @@ Open http://localhost:8001 for the portfolio or http://localhost:8001/game/ for 
 - Tap **Walk** once for hands-free forward movement, swipe the trackpad to steer, and tap **Stop walking** to stop. No holding or dragging is required.
 - First-person view starts by default. Use two-finger trackpad scrolling to walk forward/backward and sideways; move the cursor across the world to look around without holding a click. Walking eases smoothly. Cursor look is bounded to a short arc per gesture and rebases after a pause or pointer warp; repeated movement cannot accumulate a full rotation. The camera stops when cursor movement stops; screen edges never turn it automatically. Touchscreens still use drag-to-look. Click walkable ground to move there. Mouse capture is not required.
 - WASD or arrow keys: move. Shift: run. Space: jump. On mobile, use the direction pad, drag to look, and tap Jump.
+- In third person, swipe horizontally with two fingers to orbit a full 360°. Shift + a vertical swipe also orbits. Vertical scrolling walks; A/D strafe. Each wheel gesture locks its axis, and the camera stops turning as soon as the gesture stops. Ordinary hover still provides bounded cursor look.
 - Press F or use the view button to switch between first person and a close third-person camera. Press M or World Map for the enlarged 2D map; the view button returns to 3D. Third person uses a smaller portrait-inspired character with animated legs and arms, a wider view of the world, and a camera that adjusts for nearby walls. The body faces the direction of travel instead of rotating with an idle cursor.
 - In the overhead map, click the ground to walk; use bridges to cross the stream. Water blocks walking, click-to-walk, and jumping, with a short swimming-skills message.
 - In 3D, the bottom navigation takes you to the cabin, workshop, tower or contact portal; press E or Enter to open its content. In the overhead map, click a building to open its story. The experience portal opens the chronological journey.
@@ -44,7 +45,7 @@ Approach Anhad in each room for a chapter-specific greeting. Press E or choose a
 
 The lift has working G/21 controls, a live floor indicator, and an exit control. A Trail on/off button controls the navigation path; Hide story/Show story clears the view of each room. Main navigation is disabled during flights and lift rides; Reset remains available.
 
-Each building has a distinct 3D interior, chapter-specific content, an outside exit, and a next-step button. Experience illustrations are displayed in unobstructed wall frames, with full-resolution image viewers in the chapter panels. The journey navigation lets visitors revisit completed stops. The skyline, countryside and flight are stylized game representations. Flights use a damped camera on a fixed side of the route, a compact caption panel and place labels, keeping the landscape visible without orbiting around each aircraft turn. The snowy ridges are fictional scenery along the game route.
+Each building has a distinct 3D interior, chapter-specific content, an outside exit, and a next-step button. Experience illustrations are displayed in unobstructed wall frames, with full-resolution image viewers in the chapter panels. The journey navigation lets visitors revisit completed stops. Toronto includes a compressed Front Street / King Street / York Street grid, crosswalks, sidewalks, street signs, Union Station’s colonnade, the CN Tower, a stepped Rogers Centre roof, rail tracks and a layered financial skyline. Cars and a red streetcar move along the roads. Edmonton has a northward river-valley district with Walterdale’s white twin arches, riverbank paths, city roads and a downtown skyline visible on climb-out. The bridge and downtown streets are also reachable on foot. Twenty-two stationary outdoor NPCs greet nearby visitors with short captions and optional Talk interactions; greeting captions do not interrupt autoplay. The skyline, countryside and flight are stylized, compressed game representations. Flights use a damped camera on a fixed side of the route, a compact caption panel and place labels, keeping the landscape visible without orbiting around each aircraft turn. The snowy ridges are fictional scenery along the game route.
 
 
 ## Source
@@ -58,7 +59,8 @@ Each building has a distinct 3D interior, chapter-specific content, an outside e
 - `game/flight-path.js`: continuous taxi, takeoff, flight and runway landing phases.
 - `game/journey-routes.js`: shared paths, corridor joins and obstacle-aware connectors.
 - `game/guided-tour.js`: connected three-chapter journey, conversation completion, chapter skipping, pause/resume and replay.
-- `game/camera-controls.js`: bounded pointer gestures, pointer-warp rebasing and capped shortest-path camera turns.
+- `game/camera-controls.js`: bounded pointer gestures, explicit 360° trackpad orbit, gesture-axis locking, pointer-warp rebasing and capped shortest-path tour turns.
+- `game/city-layout.js`, `game/city-scenery.js`, `game/city-life.js`: city layouts, batched landmark geometry, roads, moving traffic and stationary citizens with proximity greetings.
 - `game/night-lighting.js`: instanced emissive fixtures, warm halos and two pooled lights.
 - `game/landmark-buildings.js`: batched architectural geometry for the mansion, university, and TD tower.
 - `game/experience-scenes.js`: photo-inspired voxel character, animated typing/coffee poses, bedroom workstation, instanced 60-student lab, TD concourse, floor-21 office, and lift cabin.
@@ -94,4 +96,6 @@ All portal and journey placements validate dry, unoccupied ground. Aircraft park
 
 ## Checks
 
-Run `node --test game/tests/journey.test.mjs` to check runway alignment, airborne speed continuity, mountain clearance, obstacle-aware paths, bounded camera gestures, and the full tour with chapter completion, skips and interaction pauses. Browser checks cover screen normals, proximity stories, idle camera stability, trackpad movement, both complete flights, lifts, responsive controls and the full autoplay route.
+Run `node --test game/tests/journey.test.mjs` to check runway alignment, airborne speed continuity, mountain clearance, obstacle-aware paths, bounded pointer gestures, deliberate 360° trackpad orbit, city/citizen placement, and the full tour with chapter completion, skips and interaction pauses. Browser checks cover screen normals, proximity stories, idle camera stability, trackpad movement, both complete flights, lifts, responsive controls and the full autoplay route.
+
+City references: [Walterdale Bridge, City of Edmonton](https://www.edmonton.ca/projects_plans/walterdale-bridge), [downtown Toronto map](https://www.toronto.ca/311/assets/PDFs/map_metrohall.pdf), and [CN Tower location](https://www.cntower.ca/plan-your-visit/getting-here). Landmark relationships are compressed for the game; the airstrips and mountain corridor are fictional.

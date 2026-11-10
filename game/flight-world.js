@@ -1,6 +1,7 @@
+import {inEdmontonCity,inTorontoCity,cityRiver} from './city-layout.js?v=15';
 const noise=(x,z)=>{const n=Math.sin(x*127.1+z*311.7)*43758.5453;return n-Math.floor(n);};
-const core=(x,z)=>(Math.abs(x)<1690&&Math.abs(z)<1690)||(x>3500&&x<5500&&Math.abs(z)<960);
-const water=(x,z)=>(x>1700&&x<3500&&Math.abs(z)<1800)||((x+1700)/720)**2+((z-2600)/970)**2<1||((x-6600)/650)**2+((z-2400)/900)**2<1;
+const core=(x,z)=>inEdmontonCity(x,z)||inTorontoCity(x,z)||(Math.abs(x)<1690&&Math.abs(z)<1690)||(x>3500&&x<5500&&Math.abs(z)<960);
+const water=(x,z)=>cityRiver(x,z)||(x>1700&&x<3500&&Math.abs(z)<1800)||((x+1700)/720)**2+((z-2600)/970)**2<1||((x-6600)/650)**2+((z-2400)/900)**2<1;
 export const MOUNTAIN_PEAKS=[{x:1800,z:-3000,height:1000,radius:1050},{x:2800,z:-2500,height:850,radius:900},{x:3650,z:-3100,height:1100,radius:1100},{x:2450,z:2800,height:1000,radius:1100},{x:3950,z:2900,height:900,radius:1000}];
 export function landscapeHeight(x,z){
   if(core(x,z))return -60;
