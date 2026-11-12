@@ -1,4 +1,4 @@
-import {RESIDENTIAL_HOMES,MAIN_QUAD} from './world-layout.js?v=17';
+import {RESIDENTIAL_HOMES,MAIN_QUAD} from './world-layout.js?v=18';
 export function createCampusNeighbourhood({block,collision,surfaceQuad,registerLight,registerWater,sign}){
  const flat=(x,z,w,d,c,y=.4)=>surfaceQuad([[x-w/2,y,z-d/2],[x-w/2,y,z+d/2],[x+w/2,y,z+d/2],[x+w/2,y,z-d/2]],c,[0,1,0]);
  const light=(x,y,z,w,h,d)=>registerLight({region:'edmonton',x,y,z,width:w,height:h,depth:d,glow:false,pool:false});

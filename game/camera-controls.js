@@ -32,7 +32,7 @@ export function createTrackpadOrbit(){
       else if(!axis)axis=Math.abs(dx)>Math.abs(dy)*.75?'orbit':'walk';
       if(axis!=='orbit')return {orbit:false,yaw};
       const delta=shiftKey&&Math.abs(dy)>Math.abs(dx)?dy:dx;
-      return {orbit:true,yaw:wrapAngle(yaw-Math.max(-85,Math.min(85,delta))*.007)};
+      return {orbit:true,yaw:wrapAngle(yaw-Math.max(-55,Math.min(55,delta))*.005)};
     }
   };
 }

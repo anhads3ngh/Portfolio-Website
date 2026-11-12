@@ -1,4 +1,4 @@
-import {AIRPORTS} from './world-layout.js?v=17';
+import {AIRPORTS} from './world-layout.js?v=18';
 export const EXPERIENCE_ROUTES={
  portal:[[0,550],[0,350],[0,210],[210,170]],
  home:[[-450,140],[-450,-30]],

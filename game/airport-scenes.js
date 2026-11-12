@@ -1,4 +1,4 @@
-import {AIRPORTS,AIRPORT_DRIVE,terminalAt} from './world-layout.js?v=17';
+import {AIRPORTS,AIRPORT_DRIVE,terminalAt} from './world-layout.js?v=18';
 export function createAirportScenes({THREE,block,collision,addToDistrict,surfaceQuad,registerLight,boxGeometry}){
  const terminals=[];const flat=(x,z,w,d,c,y=.3)=>surfaceQuad([[x-w/2,y,z-d/2],[x-w/2,y,z+d/2],[x+w/2,y,z+d/2],[x+w/2,y,z-d/2]],c,[0,1,0]);
  function label(title,subtitle,x,y,z,width,region,rotation=0){const c=document.createElement('canvas');c.width=1024;c.height=256;const g=c.getContext('2d');g.fillStyle='#102d32';g.fillRect(0,0,1024,256);g.fillStyle='#d9efd0';g.textAlign='center';g.font='bold 70px monospace';g.fillText(title,512,110);g.fillStyle='#90cee0';g.font='31px monospace';g.fillText(subtitle,512,185);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const m=new THREE.Mesh(new THREE.PlaneGeometry(width,width/4),new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide,toneMapped:false}));m.position.set(x,y,z);m.rotation.y=rotation;addToDistrict(m,region);}

@@ -1,4 +1,4 @@
-import {inAirfield} from './airspace.js?v=17';
+import {inAirfield} from './airspace.js?v=18';
 // Compressed game districts: recognizable landmarks, with protected flight and walking corridors.
 export const CITY_LANDMARKS={
  walterdale:{x:370,z:-1740,width:130,length:470,archHeight:165},

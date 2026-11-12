@@ -1,6 +1,6 @@
 # Anhad Singh Sarna — Portfolio & Voxel World
 
-A software engineering portfolio with a playable, Minecraft-inspired voxel landscape, first-person and third-person 3D views, and a separate overhead map. The main portfolio opens with a cinematic dark hero, a portrait-inspired voxel illustration, and **Autoplay my story**. Three chapter cards launch the connected experience tour from home, university, or TD Terrace. The large **Enter my world** feature and header button open free exploration at `/game/`.
+A software engineering portfolio with a playable, Minecraft-inspired voxel landscape, first-person and third-person 3D views, and a separate overhead map. The main portfolio uses a quiet, text-led layout with warm ivory and sage colours, plain-text names, and no logos or game imagery. Work, experience and contact information stay on the homepage; the interactive tour opens through a simple play link.
 
 ## Run locally
 
@@ -73,9 +73,9 @@ Each building has a distinct 3D interior, chapter-specific content, an outside e
 - `game/night-lighting.js`: instanced emissive fixtures, warm halos and two pooled lights.
 - `game/landmark-buildings.js`: batched architectural geometry for the mansion, university, and TD tower.
 - `game/experience-scenes.js`: photo-inspired voxel character, animated typing/coffee poses, bedroom workstation, instanced 60-student lab, TD concourse, floor-21 office, and lift cabin.
-- `assets/td-terrace.jpg`, `assets/ualberta-campus.jpg`, `assets/spacecopy-remote.jpg`: AI-generated voxel interpretations for the experience section. The mansion is a fictional remote-work metaphor.
+- `assets/td-terrace.jpg`, `assets/ualberta-campus.jpg`, `assets/spacecopy-remote.jpg`: AI-generated voxel interpretations used inside the game galleries. The mansion is a fictional remote-work metaphor.
 - `projects-data.js`: shared game project data. Only PulseOps and Cassandra Log Explorer link to project repositories; other projects show a title and description.
-- `assets/voxel-world.svg`: original vector illustration for the play feature.
+- `assets/voxel-world.svg`: archived vector illustration; the homepage does not display game artwork.
 - `assets/Anhad_Singh_Sarna_Resume.pdf`: downloadable résumé.
 - `classic/`: alternate access to the conventional portfolio layout.
 
@@ -105,10 +105,12 @@ All portal and journey placements validate dry, unoccupied ground. Aircraft park
 
 ## Checks
 
-Run `node --test game/tests/journey.test.mjs` to check runway alignment, airborne speed continuity, mountain clearance, obstacle-aware paths, bounded pointer gestures, deliberate 360° trackpad orbit, city/citizen placement, complete traffic-route exclusion from airfields, passenger trails around runways, vehicle scale, rendered-obstacle detection, rounded car transfers, feedback draft encoding, and the full tour with chapter completion, skips and interaction pauses. Browser checks cover screen normals, proximity stories, idle camera stability, trackpad movement, both complete flights and car transfers, terminal walks, lifts, responsive entry/exit screens, feedback fields and the full autoplay route.
+Run `node --test game/tests/*.test.mjs` to check runway alignment, airborne speed continuity, mountain clearance, obstacle-aware paths, bounded pointer gestures, deliberate 360° trackpad orbit, city/citizen placement, complete traffic-route exclusion from airfields, passenger trails around runways, vehicle scale, rendered-obstacle detection, rounded car transfers, feedback draft encoding, the full tour with chapter completion, skips and interaction pauses, and night-light batching, cached selection and district changes. Browser checks cover screen normals, proximity stories, idle camera stability, trackpad movement, both complete flights and car transfers, terminal walks, lifts, responsive entry/exit screens, feedback fields and the full autoplay route.
 
 City references: [Walterdale Bridge, City of Edmonton](https://www.edmonton.ca/projects_plans/walterdale-bridge), [downtown Toronto map](https://www.toronto.ca/311/assets/PDFs/map_metrohall.pdf), and [CN Tower location](https://www.cntower.ca/plan-your-visit/getting-here). Landmark relationships are compressed for the game; the airstrips and mountain corridor are fictional.
 
 ## Feedback
 
 The ending and the **Exit** control include a required sender email and message. **Send feedback by email** opens a prefilled draft addressed to `assarna@ualberta.ca`; the visitor reviews and sends it in their email app. This is a static GitHub Pages site, so no background email delivery or server-side message storage is claimed.
+
+Night lighting batches windows by spatial cell and reserves halos for actual lamps. Nearest-light selection is cached and uses a linear search. Camera vectors are reused, idle third-person obstruction checks are cached, and horizontal trackpad orbit uses a gentler sensitivity without automatic spin. Game assets use cache version 18.

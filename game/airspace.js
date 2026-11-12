@@ -1,4 +1,4 @@
-import {AIRPORTS} from './world-layout.js?v=17';
+import {AIRPORTS} from './world-layout.js?v=18';
 // Local aircraft components use the same dimensions as the rendered mesh.
 export const AIRCRAFT_PARTS=[
  [0,0,0,27,27,140],[0,1,-65,23,21,30],[0,-3,5,180,6,40],

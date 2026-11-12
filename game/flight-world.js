@@ -1,6 +1,6 @@
-import {inAirportLand,inDriveCorridor,inNeighbourhood,AIRPORTS} from './world-layout.js?v=17';
-import {inApproachCorridor} from './airspace.js?v=17';
-import {inEdmontonCity,inTorontoCity,cityRiver} from './city-layout.js?v=17';
+import {inAirportLand,inDriveCorridor,inNeighbourhood,AIRPORTS} from './world-layout.js?v=18';
+import {inApproachCorridor} from './airspace.js?v=18';
+import {inEdmontonCity,inTorontoCity,cityRiver} from './city-layout.js?v=18';
 const noise=(x,z)=>{const n=Math.sin(x*127.1+z*311.7)*43758.5453;return n-Math.floor(n);};
 const core=(x,z)=>inAirportLand(x,z)||inDriveCorridor(x,z)||inNeighbourhood(x,z)||inEdmontonCity(x,z)||inTorontoCity(x,z)||(Math.abs(x)<1690&&Math.abs(z)<1690)||(x>3500&&x<5500&&Math.abs(z)<960);
 const water=(x,z)=>cityRiver(x,z)||(x>1700&&x<3500&&Math.abs(z)<1800)||((x+1700)/720)**2+((z-2600)/970)**2<1||((x-6600)/650)**2+((z-2400)/900)**2<1;

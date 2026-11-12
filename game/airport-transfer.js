@@ -1,5 +1,5 @@
 export const TRANSFER_CAR_PARTS=[[0,28,0,66,22,168],[0,50,0,66,24,96],[-28,11,-54,10,20,20],[28,11,-54,10,20,20],[-28,11,54,10,20,20],[28,11,54,10,20,20]];
-import {AIRPORT_DRIVE,AIRPORT_RETURN_DRIVE} from './world-layout.js?v=17';
+import {AIRPORT_DRIVE,AIRPORT_RETURN_DRIVE} from './world-layout.js?v=18';
 export function createAirportTransfer({THREE,addToDistrict,boxGeometry}){
  const group=new THREE.Group(),wheels=[];const part=(x,y,z,w,h,d,color)=>{const m=new THREE.Mesh(boxGeometry,new THREE.MeshLambertMaterial({color}));m.position.set(x,y+h/2,z);m.scale.set(w,h,d);group.add(m);return m;};
  part(0,17,0,66,22,168,'#d8d0ad');part(0,39,0,64,4,92,'#d8d0ad');part(0,58,0,66,5,96,'#405f63');for(const side of [-1,1])for(const z of [-44,44])part(side*29,39,z,4,22,5,'#d8d0ad');

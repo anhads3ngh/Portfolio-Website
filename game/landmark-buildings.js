@@ -222,9 +222,6 @@ export function createLandmarkBuildings({THREE,block,collision,lamp,addToDistric
     for(let xx=-22;xx<=145;xx+=22)b(x+xx,776,z-12,6,12,174,'#c4d5d2');
     b(x,57,z+112,112,5,62,'#b9c7bc');for(const side of [-1,1])b(x+side*51,0,z+137,5,57,5,metal);
     b(x,9,z+98,43,46,4,'#b7cfb6');for(const dx of [-22,0,22])b(x+dx,9,z+102,2,46,3,'#314d4c');
-    b(x-77,55,z+99,36,26,4,'#217841');
-    const canvas=document.createElement('canvas');canvas.width=256;canvas.height=128;const c=canvas.getContext('2d');c.fillStyle='#fff';c.font='bold 92px sans-serif';c.textAlign='center';c.fillText('TD',128,99);const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
-    const brand=new THREE.Mesh(new THREE.PlaneGeometry(31,17),new THREE.MeshBasicMaterial({map:texture,transparent:true}));brand.position.set(x-77,69,z+102);addToDistrict(brand,'toronto');
     for(const side of [-1,1]){garden(x+side*122,z+146,50);lantern(x+side*180,z+130);}
     registerLight({region:'toronto',x,y:54,z:z+127,floor:0,width:88,height:2,depth:23});collision(x,z-3,318,186);
   }
