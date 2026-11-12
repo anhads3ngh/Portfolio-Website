@@ -18,7 +18,10 @@ export function createGuidedTour(api){
       walk('Follow the centre aisle to the teaching desk','room:university'),
       story('university','University of Alberta · learning, teaching and mentoring'),
       leave('Walk out of the lab and head to departures','university'),
-      walk('Campus → departure apron','flight'),
+      walk('Across the quad → campus car pickup','pickup'),
+      action('Anhad is driving · campus → Edmonton Airport',()=>api.drive(false)),
+      wait('Amber route · the neighbourhood and airport access road',()=>!api.state().driving,'drive-outbound-arrival'),
+      walk('Departures → check-in → Gate A1','flight'),
       action('Boarding · Edmonton → Toronto',()=>api.fly('outbound')),
       wait('A runway takeoff and a flight through the mountains',()=>!api.state().flying,'outbound-arrival')
     ]),
@@ -37,38 +40,43 @@ export function createGuidedTour(api){
       leave('Walk outside and follow the airport trail','concourse'),
       walk('Downtown → Toronto airstrip','return-flight'),
       action('Boarding · Toronto → Edmonton',()=>api.fly('return')),
-      wait('Landing back in Edmonton',()=>!api.state().flying,'return-arrival')
+      wait('Landing back in Edmonton',()=>!api.state().flying,'return-arrival'),
+      walk('Edmonton arrivals → the campus car','campus-return'),
+      action('The final drive · airport → university',()=>api.drive(true)),
+      wait('Returning to the campus quad',()=>!api.state().driving,'drive-return-arrival'),
+      walk('Back at the main quad · thanks for exploring','quad-return')
     ])
   ];
   const find=predicate=>steps.findIndex(predicate);
   const state=()=>({active,paused,pauseReason:reason,completed,index,total:steps.length,label:steps[index]?.label,chapter:steps[index]?.chapter,kind:steps[index]?.kind,route:steps[index]?.route,visited:[...visited],finished:[...finished],skipped:[...skipped]});
   const publish=()=>api.ui({...state(),label:active?steps[index]?.label:completed?(finished.size===3?'All three chapters explored. Welcome back to Edmonton.':finished.size+' chapter'+(finished.size===1?'':'s')+' explored. Welcome back to Edmonton.'):'Explore freely, or autoplay all three connected experiences.'});
   function go(next){index=next;entered=false;elapsed=stuck=0;path=[];waypoint=0;paused=false;reason=null;api.clear();api.dismiss?.();publish();}
-  function start(){if(api.state().flying||api.state().riding)return;active=true;completed=false;visited.clear();finished.clear();skipped.clear();go(0);}
+  function start(){if(api.state().flying||api.state().riding||api.state().driving)return;active=true;completed=false;visited.clear();finished.clear();skipped.clear();go(0);}
   function pause(why='manual'){if(!active)return;if(paused&&reason==='manual'&&why==='interaction')return;paused=true;reason=why;api.clear();publish();}
   function resume(){if(!active||!paused)return;paused=false;reason=null;api.clear();if(steps[index]?.route){path=api.route(steps[index].route);waypoint=0;stuck=0;}publish();}
   function resumeInteraction(){if(active&&paused&&reason==='interaction')resume();}
+  function reset(){active=false;paused=false;reason=null;completed=false;index=0;visited.clear();finished.clear();skipped.clear();api.clear();api.dismiss?.();publish();}
   function stop(){active=false;paused=false;reason=null;api.clear();publish();}
   function advance(){index++;entered=false;elapsed=stuck=0;if(index>=steps.length){active=false;completed=true;api.clear();api.dismiss?.();}publish();}
   function finishChapter(wasSkipped=false){
-    if(!active||api.state().flying||api.state().riding)return false;
+    if(!active||api.state().flying||api.state().riding||api.state().driving)return false;
     const room=api.state().room,id=order.includes(room)?room:steps[index]?.chapter;
     if(!id)return false;finished.add(id);if(wasSkipped)skipped.add(id);
     if(order.includes(room)){visited.add(room);go(find(s=>s.leaving===room));}
     else if(room==='concourse')go(find(s=>s.leaving==='concourse'));
     else if(room==='lift'){resume();return false;}
     else if(id==='home')go(find(s=>s.route==='university'));
-    else if(id==='university')go(find(s=>s.route==='flight'));
+    else if(id==='university')go(find(s=>s.route==='pickup'));
     else go(find(s=>s.route==='return-flight'));
     return true;
   }
   function selectChapter(id){
-    if(!order.includes(id)||api.state().flying||api.state().riding)return;
+    if(!order.includes(id)||api.state().flying||api.state().riding||api.state().driving)return;
     active=true;completed=false;paused=false;reason=null;api.clear();api.dismiss?.();api.travel(id);
     go(find(s=>s.arrival===(id==='td'?'concourse':id)));
   }
-  function board(direction){if(!active||api.state().flying||api.state().riding)return;go(find(s=>s.tag===(direction==='return'?'return-arrival':'outbound-arrival')));api.fly(direction);}
-  function rideTo(to){if(!active||api.state().flying||api.state().riding)return;go(find(s=>s.tag===(to===21?'office-arrival':'concourse-arrival')));api.enterLift(to===21?0:21);api.rideLift(to);}
+  function board(direction){if(!active||api.state().flying||api.state().riding||api.state().driving)return;if(direction==='drive-return'){go(find(s=>s.tag==='drive-return-arrival'));api.drive(true);return;}if(api.state().room){finishChapter(true);return;}if(api.state().atGate){go(find(s=>s.tag===(direction==='return'?'return-arrival':'outbound-arrival')));api.fly(direction);}else if(direction==='return')go(find(s=>s.route==='return-flight'));else{go(find(s=>s.tag==='drive-outbound-arrival'));api.drive(false);}}
+  function rideTo(to){if(!active||api.state().flying||api.state().riding||api.state().driving)return;go(find(s=>s.tag===(to===21?'office-arrival':'concourse-arrival')));api.enterLift(to===21?0:21);api.rideLift(to);}
   function arrive(room){if(!active)return;if(order.includes(room))go(find(s=>s.route===(finished.has(room)?'exit:':'room:')+room));else if(room==='concourse')go(find(s=>s.route===(visited.has('td')?'exit:concourse':'room:concourse')));}
   function update(dt){
     if(!active||paused)return;
@@ -92,5 +100,5 @@ export function createGuidedTour(api){
     const after=api.state().position;stuck=Math.hypot(after.x-p.x,after.z-p.z)<.01?stuck+dt:0;
     if(stuck>1){pause('obstacle');api.notify('Tour paused at an obstacle. Resume or choose the next experience.');}
   }
-  return {start,pause,resume,resumeInteraction,stop,update,finishChapter,skip:()=>finishChapter(true),selectChapter,board,rideTo,arrive,get state(){return state();}};
+  return {start,reset,pause,resume,resumeInteraction,stop,update,finishChapter,skip:()=>finishChapter(true),selectChapter,board,rideTo,arrive,get state(){return state();}};
 }

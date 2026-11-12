@@ -1,4 +1,4 @@
-import {inAirfield} from './airspace.js?v=16';
+import {inAirfield} from './airspace.js?v=17';
 // Compressed game districts: recognizable landmarks, with protected flight and walking corridors.
 export const CITY_LANDMARKS={
  walterdale:{x:370,z:-1740,width:130,length:470,archHeight:165},
@@ -17,12 +17,17 @@ export const TORONTO_ROADS=[
 ];
 export const CITY_CITIZENS=[
  ...[
+  [-1070,-1005,'Neighbourhood resident','Hi! Welcome to the neighbourhood. The university is a short walk east.'],
+  [-835,-720,'Garden neighbour','Hey! A quiet street, a little garden, and campus just around the corner.'],
+  [-600,-435,'Evening walker','Hello! Follow the stone paths towards the main quad.'],
+  [-2150,-705,'YEG check-in host','Welcome to Edmonton departures. Follow the blue line through security to Gate A1.'],
+  [-2000,-480,'Airport visitor','Hi! The terminal is open. Blue paths are for passengers; amber is the campus transfer.'],
   [-340,210,'Neighbour','Hey! The home workspace is just along the garden path.'],
   [620,170,'Computing student','Hi! The computer lab is open. Anhad is teaching at the front.'],
   [830,180,'Campus visitor','Welcome to Edmonton! Look for the river valley after takeoff.'],
   [845,-210,'Airport greeter','Boarding for Toronto? Follow the glowing trail to the plane.'],
-  [640,-370,'Library visitor','Hi! The library, engineering pavilion and commons are all around the campus loop.'],
-  [640,-880,'Engineering student','Hey! A good place to build something, then try to break it.'],
+  [665,-370,'Library visitor','Hi! The library, engineering pavilion and commons are all around the campus loop.'],
+  [665,-880,'Engineering student','Hey! A good place to build something, then try to break it.'],
   [250,-200,'Student ambassador','Welcome to campus! Grab a seat in the commons or follow the trail to the lab.'],
   [410,-1010,'Residence student','Hi! I am heading across campus. Enjoy your visit.'],
   [-450,-2190,'Downtown commuter','Hello! Good day for a river-valley walk before catching the bus.'],
@@ -32,9 +37,11 @@ export const CITY_CITIZENS=[
   [270,-2160,'Edmonton visitor','Hello! This river valley is my favourite way into the city.'],
   [-710,-800,'Cyclist','Beautiful day for the river valley. Enjoy the view!'],
   [-60,-1050,'Edmonton local','Hello! Look north on your flight: Walterdale Bridge and our skyline.'],
-  [630,-1090,'Ground crew','Have a great flight! Both planes park clear of the runway.']
+  [680,-1090,'Ground crew','Have a great flight! Both planes park clear of the runway.']
  ].map(([x,z,name,message],i)=>({id:'edmonton-'+i,zone:'edmonton',x,z,name,message})),
  ...[
+  [5730,140,'YYZ arrivals host','Welcome to Toronto! Exit through the glass terminal, then follow the blue passenger route downtown.'],
+  [5740,400,'YYZ check-in host','Hello! Your Edmonton return flight departs from Gate A1.'],
   [4430,330,'Toronto local','Welcome to Toronto! TD Terrace is straight up the glowing path.'],
   [4570,125,'Front Street commuter','Hey! Union Station, the tower, the office—everything has a story here.'],
   [4625,-75,'Office commuter','Morning! The concourse lift takes you to floor 21.'],
@@ -50,7 +57,7 @@ export const CITY_CITIZENS=[
  ].map(([x,z,name,message],i)=>({id:'toronto-'+i,zone:'toronto',x,z,name,message}))
 ];
 export function inEdmontonCity(x,z){return x>=-1350&&x<=1690&&z>=-3200&&z<=-1550;}
-export function inTorontoCity(x,z){return x>=3600&&x<=6200&&z>=-1650&&z<=880;}
+export function inTorontoCity(x,z){return x>=3600&&x<=6200&&z>=-1650&&z<=1060;}
 export function cityRiver(x,z){return x>=-1350&&x<=1690&&z>-1975&&z<-1505;}
 export function runwayClear(x,z,margin=0){return ((Math.abs(x-1050)<240+margin||Math.abs(x-5050)<240+margin)&&Math.abs(z)<3200);}
 
@@ -81,10 +88,13 @@ export const CAMPUS_BUILDINGS=[
  {id:'library',name:'CAMPUS LIBRARY',x:350,z:-470,w:210,d:170,height:147,color:'#b4aa8d',style:'library'},
  {id:'engineering',name:'ENGINEERING PAVILION',x:750,z:-720,w:235,d:180,height:180,color:'#8d9c99',style:'engineering'},
  {id:'commons',name:'STUDENT COMMONS',x:300,z:-80,w:190,d:140,height:103,color:'#ad8365',style:'commons'},
+ {id:'computing',name:'COMPUTING SCIENCE',x:750,z:-1080,w:220,d:150,height:158,color:'#b0b9ac',style:'engineering'},
+ {id:'arts',name:'ARTS & HUMANITIES',x:100,z:-430,w:180,d:150,height:128,color:'#b29a7b',style:'commons'},
+ {id:'science',name:'SCIENCE DEPARTMENT',x:-100,z:-1050,w:180,d:150,height:168,color:'#9aaba9',style:'engineering'},
  {id:'residence',name:'CAMPUS RESIDENCE',x:280,z:-1050,w:175,d:155,height:215,color:'#96735d',style:'residence'}
 ];
 export const CAMPUS_ROADS=[
- {name:'CAMPUS LOOP',axis:'z',x:540,z:-650,length:1000,width:130},
+ {name:'CAMPUS LOOP',axis:'z',x:540,z:-650,length:1000,width:160},
  {name:'CAMPUS AVENUE',axis:'x',x:300,z:-235,length:1050,width:110}
 ];
 export function inCampus(x,z,margin=0){return x>150-margin&&x<890+margin&&z>-1200-margin&&z<0+margin;}
@@ -95,7 +105,7 @@ export const CITY_TRAFFIC=[
  {id:'waterfront-car',type:'car',x:4250,z:655,axis:'x',length:790,speed:27,phase:200,color:'#8caaa1',region:'toronto'},
  ...Array.from({length:5},(_,i)=>({id:'edmonton-car-'+i,type:'car',x:170,z:-2320+(i%2?36:-36),axis:'x',length:2500,speed:i%2?-39:40,phase:i*380,color:['#cad1ba','#a56f54','#6f8b9e'][i%3],region:'edmonton'})),
  {id:'edmonton-downtown-bus',type:'bus',x:170,z:-2965,axis:'x',length:2370,speed:29,phase:420,color:'#ceba7a',region:'edmonton'},
- {id:'campus-bus',type:'bus',x:540,z:-650,axis:'z',length:650,speed:25,phase:150,color:'#7aaba4',region:'edmonton'},
+ {id:'campus-bus',type:'bus',x:580,z:-650,axis:'z',length:650,speed:25,phase:150,color:'#7aaba4',region:'edmonton'},
  ...Array.from({length:3},(_,i)=>({id:'river-cyclist-'+i,type:'bicycle',x:170,z:-2140+(i%2?18:-18),axis:'x',length:2400,speed:i%2?-26:23,phase:i*760,color:['#8d6b9a','#d19c64','#6f8e9a'][i],region:'edmonton'}))
 ].map(r=>({...r,dimensions:VEHICLE_DIMENSIONS[r.type]}));
 if(CITY_CITIZENS.some(c=>inAirfield(c.x,c.z,20)))throw new Error('A citizen is inside the airfield boundary.');

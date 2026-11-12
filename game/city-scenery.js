@@ -1,5 +1,6 @@
-import {inAirfield,routeAvoidsAirfields,trafficPosition} from './airspace.js?v=16';
-import {CITY_LANDMARKS,TORONTO_ROADS,CITY_TOWERS,CAMPUS_BUILDINGS,CAMPUS_ROADS,CITY_TRAFFIC} from './city-layout.js?v=16';
+import {inDriveCorridor} from './world-layout.js?v=17';
+import {inAirfield,routeAvoidsAirfields,trafficPosition} from './airspace.js?v=17';
+import {CITY_LANDMARKS,TORONTO_ROADS,CITY_TOWERS,CAMPUS_BUILDINGS,CAMPUS_ROADS,CITY_TRAFFIC} from './city-layout.js?v=17';
 
 export function createCityScenery({THREE,block,collision,surfaceQuad,addToDistrict,boxGeometry,registerLight,lamp}){
   const beams=[],traffic=[],landmarks=[],footprints=[];
@@ -15,7 +16,7 @@ export function createCityScenery({THREE,block,collision,surfaceQuad,addToDistri
     flat(x,z,w+36,d+36,'#b7b8ae',.35);flat(x,z,w,d,'#465158',.65);
     for(let n=-length/2+20;n<length/2-10;n+=46)flat(x+(horizontal?n:0),z+(horizontal?0:n),horizontal?23:3,horizontal?3:23,'#ddd1a2',.8);
     for(const side of [-1,1])flat(x+(horizontal?0:side*(width/2-6)),z+(horizontal?side*(width/2-6):0),horizontal?length:2,horizontal?2:length,'#c9d5cb',.82);
-    for(let n=-length/2+75;n<length/2;n+=220){const px=x+(horizontal?n:width/2+19),pz=z+(horizontal?width/2+19:n);if(inAirfield(px,pz,15))continue;block(px,0,pz,4,70,4,'#46575a');block(px,70,pz,24,4,9,'#ced5c9');light(px,73,pz,region,18);}
+    for(let n=-length/2+75;n<length/2;n+=220){const px=x+(horizontal?n:width/2+19),pz=z+(horizontal?width/2+19:n);if(inAirfield(px,pz,15)||inDriveCorridor(px,pz,20))continue;block(px,0,pz,4,70,4,'#46575a');block(px,70,pz,24,4,9,'#ced5c9');light(px,73,pz,region,18);}
   }
   function crosswalk(x,z,axis='x',width=88){for(let n=-width/2;n<width/2;n+=13)flat(x+(axis==='x'?n:0),z+(axis==='x'?0:n),axis==='x'?7:35,axis==='x'?35:7,'#e5e5d5',1.05);}
   function streetLabel(text,x,z,angle=0){
@@ -54,7 +55,7 @@ export function createCityScenery({THREE,block,collision,surfaceQuad,addToDistri
 
 
   // Toronto: street grid, station colonnade, rail corridor and a layered skyline.
-  flat(4900,-385,2600,2530,'#a3aea8',0);
+  flat(4900,-385,2600,2530,'#a3aea8',0);flat(4900,970,2600,220,'#a9b2a2',0);
   for(const r of TORONTO_ROADS)road(r,'toronto');
   for(const x of [4170,4680])for(const z of [25,620,-720]){crosswalk(x-87,z,'z',130);crosswalk(x+87,z,'z',130);crosswalk(x,z-85,'x',130);crosswalk(x,z+85,'x',130);signal(x+88,z+88);}
   streetLabel('FRONT STREET WEST',4420,92);streetLabel('YORK STREET',4735,130,Math.PI/2);streetLabel('KING STREET WEST',4240,-665);streetLabel('QUEENS QUAY',4360,680);
@@ -65,7 +66,7 @@ export function createCityScenery({THREE,block,collision,surfaceQuad,addToDistri
   const cn=CITY_LANDMARKS.cnTower;block(cn.x,0,cn.z,65,26,65,'#b8bcb0');block(cn.x,26,cn.z,24,620,24,'#c1c6bc');block(cn.x,646,cn.z,112,18,112,'#afb8b3');block(cn.x,664,cn.z,126,22,126,'#638c9a');block(cn.x,686,cn.z,95,21,95,'#bcc7c2');block(cn.x,707,cn.z,28,90,28,'#a4b7b4');block(cn.x,797,cn.z,8,123,8,'#d9dfd6');solid(cn.x,cn.z,65,65,646);footprints.push({x:cn.x,z:cn.z,w:126,d:126,h:707,minY:646},{x:cn.x,z:cn.z,w:28,d:28,h:920,minY:707});light(cn.x,700,cn.z,'toronto',18);for(const side of [-1,1]){windowLight('cn-tower',cn.x,675,cn.z+side*64,116,15,2,'toronto');windowLight('cn-tower',cn.x+side*64,675,cn.z,2,15,116,'toronto');}
   const dome=CITY_LANDMARKS.rogersCentre;for(let i=0;i<8;i++)block(dome.x,8+i*8,dome.z,dome.width-i*25,8,dome.depth-i*16,'#d8dfd7');block(dome.x,0,dome.z,dome.width,16,dome.depth,'#84979a');solid(dome.x,dome.z,dome.width,dome.depth,80);facadeLights('rogers-centre',dome.x,dome.z,dome.width,dome.depth,34,'toronto',12);
   for(const t of CITY_TOWERS.filter(t=>t.zone==='toronto'))tower(t.x,t.z,t.w,t.d,t.height,t.color,t.style,t.zone);
-  for(const [x,z]of [[3990,285],[4330,315],[4790,330],[5480,300]]){block(x,0,z,125,70,95,'#ad8b6c');block(x,70,z,132,10,105,'#506e6d');solid(x,z,125,95,80);for(let a=-45;a<=45;a+=30){block(x+a,18,z+49,22,35,3,'#537987');block(x+a,54,z+51,27,10,3,'#e7cda0');windowLight('shop:'+x,x+a,35,z+50,20,32,1,'toronto');}}
+  for(const [x,z]of [[3990,285],[4330,315],[4790,330],[5950,530]]){block(x,0,z,125,70,95,'#ad8b6c');block(x,70,z,132,10,105,'#506e6d');solid(x,z,125,95,80);for(let a=-45;a<=45;a+=30){block(x+a,18,z+49,22,35,3,'#537987');block(x+a,54,z+51,27,10,3,'#e7cda0');windowLight('shop:'+x,x+a,35,z+50,20,32,1,'toronto');}}
   flat(4420,805,1620,115,'#b8b6a0',.4);for(let x=3670;x<4850;x+=70)block(x,0,870,48,8,20,'#aab1a5');
   for(const z of [-742,-698])flat(4260,z,1200,2,'#c0cbc6',1);
 
@@ -100,7 +101,7 @@ export function createCityScenery({THREE,block,collision,surfaceQuad,addToDistri
     for(const side of [-1,1]){planter(c.x+side*(c.w/2-20),c.z+c.d/2+30);bench(c.x+side*50,c.z+c.d/2+60);}
   }
   // Bus shelters and café seating keep the activity on the campus streets.
-  for(const [x,z]of [[650,-270],[650,-1040],[-570,-2220]]){block(x,0,z,75,4,35,'#b6b9a5');for(const a of [-1,1])block(x+a*34,0,z,4,63,4,'#59756c');block(x,63,z,85,5,43,'#456b64');block(x,9,z-13,65,43,2,'#7caaa2');bench(x,z);light(x,60,z,'edmonton',26);}
+  for(const [x,z]of [[675,-270],[675,-1040],[-570,-2220]]){block(x,0,z,75,4,35,'#b6b9a5');for(const a of [-1,1])block(x+a*34,0,z,4,63,4,'#59756c');block(x,63,z,85,5,43,'#456b64');block(x,9,z-13,65,43,2,'#7caaa2');bench(x,z);light(x,60,z,'edmonton',26);}
   for(const [x,z]of [[225,-210],[360,-280],[120,-2210],[-100,-2210]]){block(x,0,z,45,32,45,'#a58c63');block(x,32,z,60,5,60,'#d3bf89');bench(x-60,z);bench(x+60,z);}
   for(const route of CITY_TRAFFIC)vehicle(route);
   // Repeated angled bridge members share one draw call.

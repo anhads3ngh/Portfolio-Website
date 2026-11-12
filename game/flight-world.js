@@ -1,20 +1,21 @@
-import {inApproachCorridor} from './airspace.js?v=16';
-import {inEdmontonCity,inTorontoCity,cityRiver} from './city-layout.js?v=16';
+import {inAirportLand,inDriveCorridor,inNeighbourhood,AIRPORTS} from './world-layout.js?v=17';
+import {inApproachCorridor} from './airspace.js?v=17';
+import {inEdmontonCity,inTorontoCity,cityRiver} from './city-layout.js?v=17';
 const noise=(x,z)=>{const n=Math.sin(x*127.1+z*311.7)*43758.5453;return n-Math.floor(n);};
-const core=(x,z)=>inEdmontonCity(x,z)||inTorontoCity(x,z)||(Math.abs(x)<1690&&Math.abs(z)<1690)||(x>3500&&x<5500&&Math.abs(z)<960);
+const core=(x,z)=>inAirportLand(x,z)||inDriveCorridor(x,z)||inNeighbourhood(x,z)||inEdmontonCity(x,z)||inTorontoCity(x,z)||(Math.abs(x)<1690&&Math.abs(z)<1690)||(x>3500&&x<5500&&Math.abs(z)<960);
 const water=(x,z)=>cityRiver(x,z)||(x>1700&&x<3500&&Math.abs(z)<1800)||((x+1700)/720)**2+((z-2600)/970)**2<1||((x-6600)/650)**2+((z-2400)/900)**2<1;
-export const MOUNTAIN_PEAKS=[{x:1800,z:-3000,height:1000,radius:1050},{x:2800,z:-2500,height:850,radius:900},{x:3650,z:-3100,height:1100,radius:1100},{x:2450,z:2800,height:1000,radius:1100},{x:3950,z:2900,height:900,radius:1000}];
+export const MOUNTAIN_PEAKS=[{x:-1400,z:-5800,height:1050,radius:1200},{x:-3400,z:-6200,height:1100,radius:1100},{x:1800,z:-3000,height:1000,radius:1050},{x:2800,z:-2500,height:850,radius:900},{x:3650,z:-3100,height:1100,radius:1100},{x:2450,z:2800,height:1000,radius:1100},{x:3950,z:2900,height:900,radius:1000}];
 export function landscapeHeight(x,z){
   if(core(x,z))return -60;
   if(water(x,z))return -35;
-  if((Math.abs(x-1050)<240||Math.abs(x-5050)<240)&&Math.abs(z)<3200)return -30;
+  if(Object.values(AIRPORTS).some(a=>Math.abs(x-a.x)<260&&z>a.z-4500&&z<a.z+2300))return -30;
   const hills=35+Math.sin(x*.0013)*48+Math.cos(z*.0016)*34+Math.sin((x+z)*.002)*18;
   let mountains=0;for(const peak of MOUNTAIN_PEAKS){const distance=Math.hypot((x-peak.x)/peak.radius,(z-peak.z)/peak.radius);const ridge=Math.max(0,1-distance);mountains=Math.max(mountains,Math.pow(ridge,1.25)*peak.height);}
   return Math.round((hills+mountains)/18)*18-25;
 }
 
 export function createFlightWorld({THREE,addToDistrict,material,boxGeometry,registerLight}){
-  const chunks=new Map(),bits=new Map(),step=240,bounds={minX:-5600,maxX:10000,minZ:-6000,maxZ:6000};
+  const chunks=new Map(),bits=new Map(),step=240,bounds={minX:-6500,maxX:11000,minZ:-8500,maxZ:7500};
   const groundMaterial=material('#ffffff').clone();groundMaterial.vertexColors=true;groundMaterial.map=null;
   const quad=(points,color)=>{
     const x=points[0][0],z=points[0][2],key=Math.floor(x/2400)+'|'+Math.floor(z/2400);
@@ -23,7 +24,7 @@ export function createFlightWorld({THREE,addToDistrict,material,boxGeometry,regi
   };
   for(let x=bounds.minX;x<bounds.maxX;x+=step)for(let z=bounds.minZ;z<bounds.maxZ;z+=step){
     const n=noise(x,z),wet=water(x+step/2,z+step/2);
-    const altitude=landscapeHeight(x+step/2,z+step/2),color=wet?'#518d94':altitude>550?'#e3e8e2':altitude>330?'#9aa59f':altitude>180?'#687d70':Math.abs(z)>4000?'#8b9a87':n>.8?'#b1a66a':n>.5?'#8eaa68':n>.25?'#76965c':'#648752';
+    const altitude=landscapeHeight(x+step/2,z+step/2),color=wet?'#518d94':altitude>550?'#e3e8e2':altitude>330?'#9aa59f':altitude>180?'#687d70':Math.abs(z)>4000?(n>.65?'#9da98c':n>.35?'#84987b':'#718c6d'):n>.8?'#b1a66a':n>.5?'#8eaa68':n>.25?'#76965c':'#648752';
     quad([[x,landscapeHeight(x,z),z],[x,landscapeHeight(x,z+step),z+step],[x+step,landscapeHeight(x+step,z+step),z+step],[x+step,landscapeHeight(x+step,z),z]],color);
   }
   for(const chunk of chunks.values()){
@@ -33,8 +34,8 @@ export function createFlightWorld({THREE,addToDistrict,material,boxGeometry,regi
   const box=(x,y,z,w,h,d,color)=>{const key=Math.floor(x/1800)+'|'+Math.floor(z/1800);if(!bits.has(key))bits.set(key,[]);bits.get(key).push({x,y:y+h/2,z,w,h,d,color});};
   // Low-detail forest clusters, fields and settlements remain visible beneath
   // the entire flight, while detailed portfolio districts retain their meshes.
-  for(let i=0;i<650;i++){
-    const x=-3800+noise(i,17)*12600,z=-4500+noise(i,23)*9000;
+  for(let i=0;i<1100;i++){
+    const x=-5400+noise(i,17)*15600,z=-7000+noise(i,23)*13500;
     if(core(x,z)||water(x,z)||inApproachCorridor(x,z,40))continue;
     const y=surfaceHeight(x,z),h=38+noise(i,43)*38;if(y>280)continue;
     box(x,y,z,9,h,9,'#776345');box(x,y+h*.6,z,45,h*.7,45,i%2?'#4a714c':'#5d8051');

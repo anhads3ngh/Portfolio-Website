@@ -11,16 +11,16 @@ function arcPath(path,startSpeed,endSpeed,duration){
 
 export function createFlightPlan({from,to,fromParking,toParking,reduced=false}){
   const ground=30,start=point(fromParking.x,ground,fromParking.z),hold=point(fromParking.x,ground,from.z+460),threshold=point(from.x,ground,from.z+460);
-  const rotate=point(from.x,ground,from.z+100),airborne=point(from.x,72,from.z-120),cruise=point(from.x,650,from.z-1800),approach=point(to.x,160,to.z+1400);
+  const rotate=point(from.x,ground,from.z+100),airborne=point(from.x,72,from.z-120),cruise=point(from.x,1300,from.z-3720),approach=point(to.x,160,to.z+1400);
   const flare=point(to.x,48,to.z+480),touchdown=point(to.x,ground,to.z+330),rollout=point(to.x,ground,to.z-280),turnoff=point(toParking.x,ground,to.z-280),parked=point(toParking.x,ground,toParking.z);
-  const cruisePath=arcPath(t=>bezier(cruise,point(from.x,650,from.z-2700),point(to.x,294,to.z+2500),approach,t),250,232,18);
+  const cruisePath=arcPath(t=>bezier(cruise,point(from.x,1300,from.z-4700),point(to.x,420,to.z+2700),approach,t),250,232,28);
   const legs=[
     ['TAXI TO RUNWAY',3,t=>line(start,hold,smooth(t)),true],
     ['LINE UP',2,t=>bezier(hold,point(hold.x-70,ground,hold.z),point(threshold.x,ground,threshold.z+55),threshold,smooth(t)),true],
     ['TAKEOFF ROLL',3.2,t=>line(threshold,rotate,t*t),true],
     ['ROTATE',1.2,t=>point(from.x,hermite(30,72,0,60,1.2,t),hermite(rotate.z,airborne.z,-225,-220,1.2,t)),false],
-    ['CLIMB',7,t=>point(from.x,hermite(72,650,60,0,7,t),hermite(airborne.z,cruise.z,-220,-250,7,t)),false],
-    ['CRUISE',18,cruisePath,false],
+    ['CLIMB',14,t=>point(from.x,hermite(72,1300,60,0,14,t),hermite(airborne.z,cruise.z,-220,-250,14,t)),false],
+    ['CRUISE',28,cruisePath,false],
     ['FINAL APPROACH',4,t=>line(approach,flare,t),false],
     ['FLARE / TOUCHDOWN',1,t=>point(to.x,hermite(48,30,-28,0,1,t),hermite(flare.z,touchdown.z,-230,-160,1,t)),false],
     ['LANDING ROLL',6,t=>point(to.x,30,hermite(touchdown.z,rollout.z,-160,0,6,t)),true],
