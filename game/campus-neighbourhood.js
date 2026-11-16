@@ -1,4 +1,4 @@
-import {RESIDENTIAL_HOMES,MAIN_QUAD} from './world-layout.js?v=18';
+import {RESIDENTIAL_HOMES,MAIN_QUAD} from './world-layout.js?v=19';
 export function createCampusNeighbourhood({block,collision,surfaceQuad,registerLight,registerWater,sign}){
  const flat=(x,z,w,d,c,y=.4)=>surfaceQuad([[x-w/2,y,z-d/2],[x-w/2,y,z+d/2],[x+w/2,y,z+d/2],[x+w/2,y,z-d/2]],c,[0,1,0]);
  const light=(x,y,z,w,h,d)=>registerLight({region:'edmonton',x,y,z,width:w,height:h,depth:d,glow:false,pool:false});
@@ -9,8 +9,7 @@ export function createCampusNeighbourhood({block,collision,surfaceQuad,registerL
  sign('MAIN QUAD','LIBRARY · SCIENCE · COMMUNITY',390,175,67,115);
  for(const x of [210,540]){block(x,0,-10,4,110,4,'#5a7568');block(x+13,65,-10,24,42,3,'#34674d');light(x+13,89,-7,20,7,1);}
  // Residential streets and front gardens turn the west side into a neighbourhood.
- flat(-740,-785,900,850,'#94ad78',0);for(const z of [-937,-652]){flat(-740,z,890,112,'#526067',.5);for(let x=-1145;x<-320;x+=50)flat(x,z,24,3,'#d5cead',.8);}
- flat(-1110,-785,84,820,'#526067',.55);
+ flat(-740,-785,900,850,'#94ad78',-.3);
  for(const [i,h]of RESIDENTIAL_HOMES.entries()){
   flat(h.x,h.z,h.w+44,h.d+55,'#c3c2a6',.25);block(h.x,0,h.z,h.w,h.height,h.d,['#b39a7c','#b7ada0','#a78c74'][i%3]);collision(h.x,h.z,h.w,h.d);
   for(let r=0;r<7;r++)block(h.x,h.height+r*8,h.z,h.w+18-r*20,8,h.d+16,['#41685a','#59696a','#786557'][i%3]);

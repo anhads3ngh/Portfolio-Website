@@ -6,6 +6,8 @@ export const ROOM_LAYOUT={
  lift:{halfX:95,halfZ:115,height:165,exitZ:140,spawn:{x:0,z:55,yaw:0,pitch:.05}}
 };
 
+export const OFFICE_LOUNGE={x:-250,z:65,width:110,depth:44,seatHeight:27,backZ:80,personZ:60,facing:Math.PI};
+
 export function createExperienceScenes({THREE,block,addToDistrict,roomOrigins,wallPoster,chapters,boxGeometry,registerLight}){
  const actors=new Map(),animated=[],colorMaterials=new Map();let studentCount=0;
  const mat=(color)=>{if(!colorMaterials.has(color))colorMaterials.set(color,new THREE.MeshLambertMaterial({color}));return colorMaterials.get(color);};
@@ -39,9 +41,10 @@ export function createExperienceScenes({THREE,block,addToDistrict,roomOrigins,wa
  }
  function npcPerson(o,x,z,index,name,message,seated=true,facing=Math.PI){
   const group=new THREE.Group(),parts=[],p=(x,y,z,w,h,d,c)=>parts.push({x,y:y+h/2,z,w,h,d,c}),skin=['#c99a72','#9a684b','#d5b18c','#b88b64'][index%4],shirt=['#547480','#8b756e','#65836d','#7b7189','#a28c64'][index%5];
-  for(const a of [-1,1]){p(a*6,5,seated?16:0,9,21,10,'#354c61');p(a*6,0,seated?19:3,10,6,15,'#263937');}p(0,28,0,24,26,16,shirt);p(-17,31,8,8,20,10,shirt);p(17,31,8,8,20,10,shirt);p(-17,27,11,8,7,10,skin);p(17,27,11,8,7,10,skin);
+  for(const a of [-1,1]){if(seated)p(a*6,26,9,9,9,24,'#354c61');p(a*6,5,seated?18:0,9,21,10,'#354c61');p(a*6,0,seated?22:3,10,6,15,'#263937');}p(0,28,0,24,26,16,shirt);p(-17,31,8,8,20,10,shirt);p(17,31,8,8,20,10,shirt);p(-17,27,11,8,7,10,skin);p(17,27,11,8,7,10,skin);
   const mesh=new THREE.InstancedMesh(boxGeometry,new THREE.MeshLambertMaterial({color:'#ffffff'}),parts.length),d=new THREE.Object3D();parts.forEach((q,i)=>{d.position.set(q.x,q.y,q.z);d.scale.set(q.w,q.h,q.d);d.updateMatrix();mesh.setMatrixAt(i,d.matrix);mesh.setColorAt(i,new THREE.Color(q.c));});mesh.computeBoundingSphere();group.add(mesh);
-  const head=new THREE.Group();cube(head,0,54,0,19,19,19,skin);cube(head,0,70,0,21,6,21,index%3?'#3b3931':'#715642');cube(head,-4,64,10,2,3,1,'#24332d');cube(head,4,64,10,2,3,1,'#24332d');group.add(head);group.position.set(o.x+x,o.y||0,o.z+z);group.rotation.y=facing;addToDistrict(group,o.id+'-room');
+  const head=new THREE.Group(),headParts=[[0,63.5,0,19,19,19,skin],[0,73,0,21,6,21,index%3?'#3b3931':'#715642'],[-4,65.5,10,2,3,1,'#24332d'],[4,65.5,10,2,3,1,'#24332d']],headMesh=new THREE.InstancedMesh(boxGeometry,new THREE.MeshLambertMaterial({color:'#ffffff'}),headParts.length);
+  headParts.forEach(([x,y,z,w,h,depth,color],i)=>{d.position.set(x,y,z);d.rotation.set(0,0,0);d.scale.set(w,h,depth);d.updateMatrix();headMesh.setMatrixAt(i,d.matrix);headMesh.setColorAt(i,new THREE.Color(color));});headMesh.computeBoundingSphere();head.add(headMesh);group.add(head);group.position.set(o.x+x,o.y||0,o.z+z);group.rotation.y=facing;addToDistrict(group,o.id+'-room');
   npcs.push({id:o.id+'-'+index,name,message,room:o.id,x:o.x+x,z:o.z+z,head,group,base:facing});return group;
  }
  function nearbyNpc(x,z,room,radius=100){let result=null,best=radius;for(const npc of npcs){if(npc.room!==room)continue;const distance=Math.hypot(npc.x-x,npc.z-z);if(distance<best){best=distance;result=npc;}}return result;}
@@ -95,8 +98,8 @@ export function createExperienceScenes({THREE,block,addToDistrict,roomOrigins,wa
   for(let i=0;i<11;i++){const x=-340+i*65,h=400+(i%4)*90;block(o.x+x,0,o.z-500,45,h,65,i%2?'#68898a':'#8a9c95');for(let y=320;y<h;y+=35)block(o.x+x,y,o.z-466,23,14,2,'#c1cbaa');}
   workArea(o,-155,-100,Math.PI-.65,'td');
   for(let i=0;i<4;i++){desk(o,180,-170+i*95,110);chair(o,180,-125+i*95,'#51686b',-1);display(o,180,67,-178+i*95,43,28,'ENGINEERING',['build · test · ship']);npcPerson(o,180,-125+i*95,i,'Engineering colleague',['The CI checks passed. Let’s review the logs before shipping.','An API trace and a SQL query can tell two parts of the same story.','A clear code review helps the next engineer understand the change.','Reliable automation starts with a repeatable test.'][i]);}
-  local(o,-250,0,65,110,27,44,'#667c71');local(o,-250,27,80,110,30,10,'#667c71');plant(o,315,240);plant(o,-310,-220);
-  local(o,265,0,260,140,60,48,'#849a85');local(o,265,60,260,148,6,55,'#d8d2b8');local(o,260,66,260,27,32,24,'#293d43');local(o,260,98,260,25,3,23,'#738e82');npcPerson(o,205,190,4,'Coffee-break colleague','Coffee first, then one more test run.',false,Math.PI/2);npcPerson(o,-250,95,5,'Software engineer','Good handoffs start with clear notes and reproducible steps.',true,0);
+  const lounge=OFFICE_LOUNGE;local(o,lounge.x,0,lounge.z,lounge.width,lounge.seatHeight,lounge.depth,'#667c71');local(o,lounge.x,lounge.seatHeight,lounge.backZ,lounge.width,30,10,'#667c71');plant(o,315,240);plant(o,-310,-220);
+  local(o,265,0,260,140,60,48,'#849a85');local(o,265,60,260,148,6,55,'#d8d2b8');local(o,260,66,260,27,32,24,'#293d43');local(o,260,98,260,25,3,23,'#738e82');npcPerson(o,205,190,4,'Coffee-break colleague','Coffee first, then one more test run.',false,Math.PI/2);npcPerson(o,lounge.x,lounge.personZ,5,'Software engineer','Good handoffs start with clear notes and reproducible steps.',true,lounge.facing);
  }
  function buildLift(o){shell(o,'lift','#8caaa6');for(const a of [-1,1])local(o,a*90,70,0,4,7,200,'#d3d9ca');local(o,0,0,-109,115,135,5,'#b5c6c2');local(o,0,0,-105,3,135,3,'#617e7b');display(o,0,145,-105,100,26,'LIFT · G → 21',['YOUR NEXT CHAPTER']);}
  function buildRoom(id){const o={...roomOrigins[id],id};if(id==='home')buildHome(o);if(id==='university')buildUniversity(o);if(id==='concourse')buildConcourse(o);if(id==='td')buildOffice(o);if(id==='lift')buildLift(o);if(chapters[id]?.image&&ROOM_LAYOUT[id].poster)wallPoster(o,chapters[id].image,id);}

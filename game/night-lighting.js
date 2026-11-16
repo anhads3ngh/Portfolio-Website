@@ -11,7 +11,7 @@ export function createNightLighting({THREE,scene,boxGeometry,fixtures,addToDistr
   // Cull window batches spatially; only real lamps need soft halos and pools.
   for(const f of fixtures){const key=[f.region,Math.floor(f.x/1024),Math.floor(f.y/512),Math.floor(f.z/1024)].join('|');if(!cells.has(key))cells.set(key,{region:f.region,list:[]});cells.get(key).list.push(f);if(f.pool!==false&&f.glow!==false){if(!candidates.has(f.region))candidates.set(f.region,[]);candidates.get(f.region).push(f);}}
   const d=new THREE.Object3D(),color=new THREE.Color(),plane=new THREE.PlaneGeometry(1,1);
-  function add(mesh,region){mesh.computeBoundingSphere();addToDistrict(mesh,region);mesh.visible=false;objects.push(mesh);}
+  function add(mesh,region){mesh.computeBoundingSphere();addToDistrict(mesh,region);mesh.visible=false;mesh.matrixAutoUpdate=false;objects.push(mesh);}
   for(const {region,list}of cells.values()){
     const bulbs=new THREE.InstancedMesh(boxGeometry,bulb,list.length);
     list.forEach((f,i)=>{d.position.set(f.x,f.y,f.z);d.rotation.set(0,0,0);d.scale.set(f.width,f.height,f.depth);d.updateMatrix();bulbs.setMatrixAt(i,d.matrix);bulbs.setColorAt(i,color.set(f.color||'#ffe9a5'));});add(bulbs,region);
@@ -21,7 +21,7 @@ export function createNightLighting({THREE,scene,boxGeometry,fixtures,addToDistr
   for(const [region,lamps]of lampRegions){
     const groundLamps=lamps.filter(f=>f.pool!==false);
     if(lamps.length){const halos=new THREE.InstancedMesh(plane,glow,lamps.length);lamps.forEach((f,i)=>{const size=Math.min(105,Math.max(f.width,f.height,f.depth)*2+38);d.position.set(f.x,f.y,f.z);d.rotation.set(0,0,0);d.scale.set(size,size,1);d.updateMatrix();halos.setMatrixAt(i,d.matrix);});add(halos,region);halos.boundingSphere.radius+=105;stats.halos+=lamps.length;}
-    if(groundLamps.length){const pools=new THREE.InstancedMesh(plane,pool,groundLamps.length);groundLamps.forEach((f,i)=>{d.position.set(f.x,(f.floor||0)+.7,f.z);d.rotation.set(-Math.PI/2,0,0);d.scale.set(150,150,1);d.updateMatrix();pools.setMatrixAt(i,d.matrix);});add(pools,region);stats.pools+=groundLamps.length;}
+    if(groundLamps.length){const pools=new THREE.InstancedMesh(plane,pool,groundLamps.length);groundLamps.forEach((f,i)=>{d.position.set(f.x,(f.floor||0)+(region.endsWith('-room')?.7:3),f.z);d.rotation.set(-Math.PI/2,0,0);d.scale.set(150,150,1);d.updateMatrix();pools.setMatrixAt(i,d.matrix);});add(pools,region);stats.pools+=groundLamps.length;}
   }
   for(let i=0;i<2;i++){const light=new THREE.PointLight('#ffd69b',0,380,1);scene.add(light);lights.push(light);}
   let wasDark=false,lastRegion=null,lastSelection=-Infinity,lastX=Infinity,lastY=Infinity,lastZ=Infinity;

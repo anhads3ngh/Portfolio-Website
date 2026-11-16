@@ -1,6 +1,7 @@
-import {inDriveCorridor} from './world-layout.js?v=18';
-import {inAirfield,routeAvoidsAirfields,trafficPosition} from './airspace.js?v=18';
-import {CITY_LANDMARKS,TORONTO_ROADS,CITY_TOWERS,CAMPUS_BUILDINGS,CAMPUS_ROADS,CITY_TRAFFIC} from './city-layout.js?v=18';
+import {BRIDGE_DECK,ROAD_LEVELS} from './road-network.js?v=19';
+import {inDriveCorridor} from './world-layout.js?v=19';
+import {inAirfield,routeAvoidsAirfields,trafficPosition} from './airspace.js?v=19';
+import {CITY_LANDMARKS,TORONTO_ROADS,CITY_TOWERS,CAMPUS_BUILDINGS,CAMPUS_ROADS,CITY_TRAFFIC} from './city-layout.js?v=19';
 
 export function createCityScenery({THREE,block,collision,surfaceQuad,addToDistrict,boxGeometry,registerLight,lamp}){
   const beams=[],traffic=[],landmarks=[],footprints=[];
@@ -13,12 +14,9 @@ export function createCityScenery({THREE,block,collision,surfaceQuad,addToDistri
   function facadeLights(id,x,z,w,d,h,region,base=33){for(let y=base;y<h;y+=32){for(let dx=-w/2+18;dx<w/2-8;dx+=28)for(const side of [-1,1])windowLight(id,x+dx,y+7,z+side*(d/2+2.5),20,12,1,region);for(let dz=-d/2+18;dz<d/2-8;dz+=28)for(const side of [-1,1])windowLight(id,x+side*(w/2+2.5),y+7,z+dz,1,12,20,region);}}
   function road({x,z,length,width,axis},region){
     const horizontal=axis==='x',w=horizontal?length:width,d=horizontal?width:length;
-    flat(x,z,w+36,d+36,'#b7b8ae',.35);flat(x,z,w,d,'#465158',.65);
-    for(let n=-length/2+20;n<length/2-10;n+=46)flat(x+(horizontal?n:0),z+(horizontal?0:n),horizontal?23:3,horizontal?3:23,'#ddd1a2',.8);
-    for(const side of [-1,1])flat(x+(horizontal?0:side*(width/2-6)),z+(horizontal?side*(width/2-6):0),horizontal?length:2,horizontal?2:length,'#c9d5cb',.82);
     for(let n=-length/2+75;n<length/2;n+=220){const px=x+(horizontal?n:width/2+19),pz=z+(horizontal?width/2+19:n);if(inAirfield(px,pz,15)||inDriveCorridor(px,pz,20))continue;block(px,0,pz,4,70,4,'#46575a');block(px,70,pz,24,4,9,'#ced5c9');light(px,73,pz,region,18);}
   }
-  function crosswalk(x,z,axis='x',width=88){for(let n=-width/2;n<width/2;n+=13)flat(x+(axis==='x'?n:0),z+(axis==='x'?0:n),axis==='x'?7:35,axis==='x'?35:7,'#e5e5d5',1.05);}
+  function crosswalk(x,z,axis='x',width=88){for(let n=-width/2;n<width/2;n+=13)flat(x+(axis==='x'?n:0),z+(axis==='x'?0:n),axis==='x'?7:35,axis==='x'?35:7,'#e5e5d5',1.9);}
   function streetLabel(text,x,z,angle=0){
     const c=document.createElement('canvas');c.width=512;c.height=96;const g=c.getContext('2d');g.fillStyle='#244b42';g.fillRect(0,0,512,96);g.strokeStyle='#c9d9c7';g.lineWidth=5;g.strokeRect(3,3,506,90);g.fillStyle='#edf3e5';g.font='bold 34px monospace';g.textAlign='center';g.fillText(text,256,60);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const mesh=new THREE.Mesh(new THREE.PlaneGeometry(95,18),new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}));mesh.position.set(x,79,z);mesh.rotation.y=angle;addToDistrict(mesh,x>3500?'toronto':'edmonton');block(x,0,z,4,72,4,'#56686a');
   }
@@ -49,13 +47,13 @@ export function createCityScenery({THREE,block,collision,surfaceQuad,addToDistri
       if(bus){part(-long/2+15,54,wide/2+1,24,38,2,'#768d84');part(long/2-24,54,wide/2+1,28,38,2,'#768d84');part(long/2-23,85,0,37,10,wide-18,'#314c4c');}
     }
     const mesh=new THREE.InstancedMesh(boxGeometry,new THREE.MeshLambertMaterial({color:'#ffffff'}),parts.length),dummy=new THREE.Object3D();parts.forEach((p,i)=>{dummy.position.set(p.x,p.y,p.z);dummy.scale.set(p.w,p.h,p.d);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);mesh.setColorAt(i,new THREE.Color(p.c));});mesh.computeBoundingSphere();group.add(mesh);
-    const lamps=new THREE.Group();if(type!=='bicycle')for(const side of [-1,1]){const bulb=new THREE.Mesh(boxGeometry,new THREE.MeshBasicMaterial({color:'#ffe4a8',toneMapped:false}));bulb.position.set(long/2+1,26,side*(wide/2-11));bulb.scale.set(2,8,12);lamps.add(bulb);const rear=bulb.clone();rear.material=new THREE.MeshBasicMaterial({color:'#e67c5f',toneMapped:false});rear.position.x=-long/2-1;lamps.add(rear);}group.add(lamps);
+    const lamps=new THREE.Group();if(type!=='bicycle'){const bulbs=new THREE.InstancedMesh(boxGeometry,new THREE.MeshBasicMaterial({color:'#ffffff',toneMapped:false}),4);let i=0;for(const side of [-1,1])for(const front of [true,false]){dummy.position.set((front?1:-1)*(long/2+1),26,side*(wide/2-11));dummy.scale.set(2,8,12);dummy.updateMatrix();bulbs.setMatrixAt(i,dummy.matrix);bulbs.setColorAt(i,new THREE.Color(front?'#ffe4a8':'#e67c5f'));i++;}bulbs.computeBoundingSphere();lamps.add(bulbs);}group.add(lamps);
     group.rotation.y=(axis==='z'?-Math.PI/2:0)+(speed<0?Math.PI:0);addToDistrict(group,region);traffic.push({...route,group,lamps});
   }
 
 
   // Toronto: street grid, station colonnade, rail corridor and a layered skyline.
-  flat(4900,-385,2600,2530,'#a3aea8',0);flat(4900,970,2600,220,'#a9b2a2',0);
+  flat(4900,-385,2600,2530,'#a3aea8',-.3);flat(4900,970,2600,220,'#a9b2a2',-.3);
   for(const r of TORONTO_ROADS)road(r,'toronto');
   for(const x of [4170,4680])for(const z of [25,620,-720]){crosswalk(x-87,z,'z',130);crosswalk(x+87,z,'z',130);crosswalk(x,z-85,'x',130);crosswalk(x,z+85,'x',130);signal(x+88,z+88);}
   streetLabel('FRONT STREET WEST',4420,92);streetLabel('YORK STREET',4735,130,Math.PI/2);streetLabel('KING STREET WEST',4240,-665);streetLabel('QUEENS QUAY',4360,680);
@@ -68,19 +66,20 @@ export function createCityScenery({THREE,block,collision,surfaceQuad,addToDistri
   for(const t of CITY_TOWERS.filter(t=>t.zone==='toronto'))tower(t.x,t.z,t.w,t.d,t.height,t.color,t.style,t.zone);
   for(const [x,z]of [[3990,285],[4330,315],[4790,330],[5950,530]]){block(x,0,z,125,70,95,'#ad8b6c');block(x,70,z,132,10,105,'#506e6d');solid(x,z,125,95,80);for(let a=-45;a<=45;a+=30){block(x+a,18,z+49,22,35,3,'#537987');block(x+a,54,z+51,27,10,3,'#e7cda0');windowLight('shop:'+x,x+a,35,z+50,20,32,1,'toronto');}}
   flat(4420,805,1620,115,'#b8b6a0',.4);for(let x=3670;x<4850;x+=70)block(x,0,870,48,8,20,'#aab1a5');
-  for(const z of [-742,-698])flat(4260,z,1200,2,'#c0cbc6',1);
+  for(const z of [-742,-698])flat(4260,z,1200,2,'#c0cbc6',1.9);
 
 
   // Edmonton's river valley is north of the playable campus, visible during climb-out.
-  flat(170,-2588,3040,1225,'#779463',0);flat(170,-1440,3040,130,'#73945d',0);
-  flat(170,-1740,3040,470,'#497f8b',-12);flat(170,-1996,3040,40,'#99a87b',-.2);flat(170,-1484,3040,40,'#96a879',-.2);
+  flat(170,-2588,3040,1225,'#779463',-.3);flat(170,-1440,3040,130,'#73945d',-.3);
+  flat(170,-1740,3040,470,'#497f8b',-12.4);flat(170,-1996,3040,40,'#99a87b',-.2);flat(170,-1484,3040,40,'#96a879',-.2);
   const b=CITY_LANDMARKS.walterdale;
-  flat(b.x,b.z,b.width,b.length,'#586361',8);for(const a of [-1,1]){flat(b.x+a*81,b.z,22,b.length+65,'#bfba9c',8);for(let z=b.z-b.length/2;z<=b.z+b.length/2;z+=45)beam([b.x+a*94,10,z],[b.x+a*94,23,z],3,'#d8dfd4');}
+  flat(b.x,b.z,b.width,b.length,'#465158',BRIDGE_DECK);for(const a of [-1,1]){flat(b.x+a*81,b.z,22,b.length+65,'#bfba9c',BRIDGE_DECK+1.2);for(let z=b.z-b.length/2;z<=b.z+b.length/2;z+=45)beam([b.x+a*94,10,z],[b.x+a*94,23,z],3,'#d8dfd4');}
   for(const side of [-1,1])for(let i=0;i<28;i++){
     const t0=i/28,t1=(i+1)/28,z0=b.z-b.length/2+t0*b.length,z1=b.z-b.length/2+t1*b.length,y0=14+Math.sin(t0*Math.PI)*b.archHeight,y1=14+Math.sin(t1*Math.PI)*b.archHeight;
     beam([b.x+side*68,y0,z0],[b.x+side*68,y1,z1],11,'#e4e9dc');if(i%2===0)beam([b.x+side*68,10,z0],[b.x+side*68,y0,z0],2.5,'#c8d3c8');
   }
-  for(let z=b.z-210;z<=b.z+210;z+=50){flat(b.x,z,3,24,'#e3d9b3',8.5);for(const a of [-1,1])light(b.x+a*84,15,z,'edmonton',7);}
+  for(let z=b.z-210;z<=b.z+210;z+=50){flat(b.x,z,3,24,'#e3d9b3',BRIDGE_DECK+.4);for(const a of [-1,1])light(b.x+a*84,15,z,'edmonton',7);}
+  for(const side of [-1,1]){const end=b.z+side*b.length/2,land=end+side*80;const points=[[b.x-65,BRIDGE_DECK,end],[b.x-65,ROAD_LEVELS.asphalt,land],[b.x+65,ROAD_LEVELS.asphalt,land],[b.x+65,BRIDGE_DECK,end]];surfaceQuad(side===1?points:points.reverse(),'#465158',[0,1,0]);}
   road({x:b.x,z:-2220,length:480,width:100,axis:'z'},'edmonton');road({x:b.x,z:-1360,length:300,width:100,axis:'z'},'edmonton');
   road({x:170,z:-2320,length:2750,width:145,axis:'x'},'edmonton');road({x:170,z:-2930,length:2750,width:145,axis:'x'},'edmonton');road({x:-850,z:-2600,length:1050,width:90,axis:'z'},'edmonton');road({x:1580,z:-995,length:1000,width:110,axis:'z'},'edmonton');
   for(const t of CITY_TOWERS.filter(t=>t.zone==='edmonton'))tower(t.x,t.z,t.w,t.d,t.height,t.color,t.style,t.zone);
