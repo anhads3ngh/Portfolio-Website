@@ -1,4 +1,4 @@
-import {CITY_CITIZENS} from './city-layout.js?v=19';
+import {CITY_CITIZENS} from './city-layout.js?v=20';
 export function createCityLife({THREE,boxGeometry,addToDistrict,groundAt}){
   const dummy=new THREE.Object3D(),material=new THREE.MeshLambertMaterial({color:'#ffffff'}),citizens=[],regions=new Map(),matrix=new THREE.Matrix4();
   for(const [i,data]of CITY_CITIZENS.entries()){

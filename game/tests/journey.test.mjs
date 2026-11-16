@@ -1,3 +1,4 @@
+import {createProjectTour} from '../project-tour.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {AIRPORTS,AIRPORT_DRIVE,inDriveCorridor,inAirportLand,inNeighbourhood,RESIDENTIAL_HOMES} from '../world-layout.js';
@@ -44,10 +45,11 @@ test('A trail connector routes around a wall and water',()=>{
 
 function harness(){
   let room=null,flying=false,riding=false,driving=false,wait=0,position={x:0,z:0},lastRoute='',routeEnd;const spoken=[],flights=[],drives=[],exits=[],travels=[];
-  const tour=createGuidedTour({clear(){},dismiss(){},notify(){},ui(){},travel(id){travels.push(id);room=null;position={x:0,z:0};},exit(){exits.push(lastRoute);assert(Math.hypot(position.x-routeEnd[0],position.z-routeEnd[1])<10);room=null;},enter(id){room=id;},enterLift(){room='lift';},rideLift(floor){riding=true;room=floor===21?'td':'concourse';wait=3;},fly(direction){flights.push(direction);flying=true;room=null;wait=3;},drive(back){drives.push(back);driving=true;room=null;wait=3;},speak(id,topic){spoken.push({id,topic});},route(id){lastRoute=id;routeEnd=[position.x+60,position.z];return [[position.x,position.z],routeEnd];},aim(){},move(x,z){position={x:position.x+x,z:position.z+z};},state:()=>({room,flying,riding,driving,position:{...position}})});
-  const tick=()=>{if(wait&&!--wait){flying=false;riding=false;driving=false;}tour.update(.1);};
+  const gallery=createProjectTour({projects:[{name:'One'},{name:'Two'}],seconds:.3});
+  const tour=createGuidedTour({projects(){gallery.start();},closeProjects(){gallery.close();},finishProjects(){gallery.finish();},clear(){},dismiss(){},notify(){},ui(){},travel(id){travels.push(id);room=null;position={x:0,z:0};},exit(){exits.push(lastRoute);assert(Math.hypot(position.x-routeEnd[0],position.z-routeEnd[1])<10);room=null;},enter(id){room=id;},enterLift(){room='lift';},rideLift(floor){riding=true;room=floor===21?'td':'concourse';wait=3;},fly(direction){flights.push(direction);flying=true;room=null;wait=3;},drive(back){drives.push(back);driving=true;room=null;wait=3;},speak(id,topic){spoken.push({id,topic});},route(id){lastRoute=id;routeEnd=[position.x+60,position.z];return [[position.x,position.z],routeEnd];},aim(){},move(x,z){position={x:position.x+x,z:position.z+z};},state:()=>({projectsComplete:gallery.state.completed,room,flying,riding,driving,position:{...position}})});
+  const tick=()=>{if(wait&&!--wait){flying=false;riding=false;driving=false;}tour.update(.1);gallery.update(.1,tour.state.paused);};
   const until=predicate=>{for(let i=0;i<10000&&!predicate();i++)tick();assert(predicate(),'Expected tour state reached');};
-  return {tour,tick,until,spoken,flights,drives,exits,travels,get position(){return {...position};}};
+  return {tour,gallery,tick,until,spoken,flights,drives,exits,travels,get position(){return {...position};}};
 }
 
 test('Autoplay visits all three chapters, tells all topics, physically exits, flies home and replays',()=>{
@@ -139,4 +141,9 @@ test('The airport is separated from campus and the car follows the access road i
 
 test('Feedback drafts preserve the sender email and message and target the portfolio email',()=>{
  const uri=feedbackMailto('visitor@example.com','More paths, please! & a café.');assert(uri.startsWith('mailto:'+FEEDBACK_EMAIL+'?'));const query=new URLSearchParams(uri.split('?')[1]);assert.equal(query.get('subject'),'Anhad’s World — visitor feedback');assert(query.get('body').includes('Sender email: visitor@example.com'));assert(query.get('body').includes('More paths, please! & a café.'));
+});
+
+
+test('The experience journey reaches the project workshop before showing its ending',()=>{
+ const h=harness();h.tour.start();h.until(()=>h.tour.state.kind==='projects');h.tick();assert(h.gallery.state.active);assert(!h.tour.state.completed);assert.deepEqual(h.tour.state.finished,['home','university','td']);h.tour.pause('interaction');const index=h.gallery.state.index;for(let i=0;i<20;i++)h.tick();assert.equal(h.gallery.state.index,index);h.tour.resume();h.until(()=>h.tour.state.completed);assert(h.gallery.state.completed);
 });

@@ -44,22 +44,25 @@ export function createGuidedTour(api){
       walk('Edmonton arrivals → the campus car','campus-return'),
       action('The final drive · airport → university',()=>api.drive(true)),
       wait('Returning to the campus quad',()=>!api.state().driving,'drive-return-arrival'),
-      walk('Back at the main quad · thanks for exploring','quad-return')
-    ])
+      walk('Back at the main quad · next, the project workshop','quad-return')
+    ]),
+    { ...walk('Main quad → explore my projects','projects'),chapter:'projects'},
+    {label:'The project workshop · code, demos and GitHub repositories',chapter:'projects',kind:'projects',run:()=>api.projects(),until:()=>api.state().projectsComplete}
   ];
   const find=predicate=>steps.findIndex(predicate);
   const state=()=>({active,paused,pauseReason:reason,completed,index,total:steps.length,label:steps[index]?.label,chapter:steps[index]?.chapter,kind:steps[index]?.kind,route:steps[index]?.route,visited:[...visited],finished:[...finished],skipped:[...skipped]});
-  const publish=()=>api.ui({...state(),label:active?steps[index]?.label:completed?(finished.size===3?'All three chapters explored. Welcome back to Edmonton.':finished.size+' chapter'+(finished.size===1?'':'s')+' explored. Welcome back to Edmonton.'):'Explore freely, or autoplay all three connected experiences.'});
-  function go(next){index=next;entered=false;elapsed=stuck=0;path=[];waypoint=0;paused=false;reason=null;api.clear();api.dismiss?.();publish();}
+  const publish=()=>api.ui({...state(),label:active?steps[index]?.label:completed?(finished.size===3?'All three experiences and the project workshop explored.':finished.size+' chapter'+(finished.size===1?'':'s')+' explored. Welcome back to Edmonton.'):'Explore freely, or autoplay all three connected experiences.'});
+  function go(next){api.closeProjects?.();index=next;entered=false;elapsed=stuck=0;path=[];waypoint=0;paused=false;reason=null;api.clear();api.dismiss?.();publish();}
   function start(){if(api.state().flying||api.state().riding||api.state().driving)return;active=true;completed=false;visited.clear();finished.clear();skipped.clear();go(0);}
   function pause(why='manual'){if(!active)return;if(paused&&reason==='manual'&&why==='interaction')return;paused=true;reason=why;api.clear();publish();}
   function resume(){if(!active||!paused)return;paused=false;reason=null;api.clear();if(steps[index]?.route){path=api.route(steps[index].route);waypoint=0;stuck=0;}publish();}
   function resumeInteraction(){if(active&&paused&&reason==='interaction')resume();}
-  function reset(){active=false;paused=false;reason=null;completed=false;index=0;visited.clear();finished.clear();skipped.clear();api.clear();api.dismiss?.();publish();}
-  function stop(){active=false;paused=false;reason=null;api.clear();publish();}
+  function reset(){api.closeProjects?.();active=false;paused=false;reason=null;completed=false;index=0;visited.clear();finished.clear();skipped.clear();api.clear();api.dismiss?.();publish();}
+  function stop(){api.closeProjects?.();active=false;paused=false;reason=null;api.clear();publish();}
   function advance(){index++;entered=false;elapsed=stuck=0;if(index>=steps.length){active=false;completed=true;api.clear();api.dismiss?.();}publish();}
   function finishChapter(wasSkipped=false){
     if(!active||api.state().flying||api.state().riding||api.state().driving)return false;
+    if(steps[index]?.chapter==='projects'){if(steps[index].kind==='projects')api.finishProjects();else go(find(s=>s.kind==='projects'));return true;}
     const room=api.state().room,id=order.includes(room)?room:steps[index]?.chapter;
     if(!id)return false;finished.add(id);if(wasSkipped)skipped.add(id);
     if(order.includes(room)){visited.add(room);go(find(s=>s.leaving===room));}

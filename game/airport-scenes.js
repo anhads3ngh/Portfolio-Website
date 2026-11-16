@@ -1,4 +1,4 @@
-import {AIRPORTS,terminalAt} from './world-layout.js?v=19';
+import {AIRPORTS,terminalAt} from './world-layout.js?v=20';
 export function createAirportScenes({THREE,block,collision,addToDistrict,surfaceQuad,registerLight,boxGeometry}){
  const terminals=[];const flat=(x,z,w,d,c,y=.3)=>surfaceQuad([[x-w/2,y,z-d/2],[x-w/2,y,z+d/2],[x+w/2,y,z+d/2],[x+w/2,y,z-d/2]],c,[0,1,0]);
  function label(title,subtitle,x,y,z,width,region,rotation=0){const c=document.createElement('canvas');c.width=1024;c.height=256;const g=c.getContext('2d');g.fillStyle='#102d32';g.fillRect(0,0,1024,256);g.fillStyle='#d9efd0';g.textAlign='center';g.font='bold 70px monospace';g.fillText(title,512,110);g.fillStyle='#90cee0';g.font='31px monospace';g.fillText(subtitle,512,185);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const m=new THREE.Mesh(new THREE.PlaneGeometry(width,width/4),new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide,toneMapped:false}));m.position.set(x,y,z);m.rotation.y=rotation;addToDistrict(m,region);}
@@ -18,8 +18,19 @@ export function createAirportScenes({THREE,block,collision,addToDistrict,surface
   block(t.x,t.height-4,t.z+t.d/2+35,t.w+12,8,80,roof);for(const side of [-1,1])block(t.x+side*(t.w/2-12),0,t.z+t.d/2+65,6,t.height-4,6,trim);
   for(const dx of [-75,0,75])for(const dz of [-50,50])registerLight({region,x:t.x+dx,y:t.height-6,z:t.z+dz,floor:0,width:45,height:3,depth:18});
   label(a.code+' · '+a.city.toUpperCase(),'ARRIVALS  /  DEPARTURES',t.x,t.height+28,t.z+t.d/2+5,t.w,region);
-  label('CHECK IN →','TORONTO  /  GATE A1',t.x+65,92,t.z+35,105,region);
+  label('CHECK IN →',ed?'TORONTO  /  GATE A1':'EDMONTON  /  GATE A1',t.x+65,92,t.z+35,105,region);
   label('GATE A1','FOLLOW THE BLUE LINE',t.x-t.w/2+9,92,gateZ,105,region,Math.PI/2);
+  // Layered terminal roof, clerestory glass and a legible landside forecourt.
+  block(t.x,t.height+8,t.z,t.w*.64,10,t.d*.74,roof);for(const side of [-1,1]){block(t.x+side*t.w*.29,t.height+3,t.z,12,9,t.d*.7,'#88b0b8');glow(region,t.x+side*t.w*.29,t.height+8,t.z,10,2,t.d*.68);}
+  flat(t.x,t.z+t.d/2+92,t.w+45,142,'#c2c8bd',.25);
+  for(const side of [-1,1]){const x=t.x+side*(t.w/2-25);block(x,0,t.z+t.d/2+114,6,42,6,'#6a8585');block(x,42,t.z+t.d/2+114,18,6,18,'#dfd6b2');registerLight({region,x,y:47,z:t.z+t.d/2+114,width:16,height:4,depth:16});}
+  // Keep the central entrance and the existing blue passenger corridor open.
+  for(const side of [-1,1]){block(t.x+side*(t.w/4+24),0,t.z+t.d/2+155,t.w/2-110,4,6,'#d3d8cb');for(let dx=55;dx<t.w/2;dx+=28)block(t.x+side*dx,0,t.z+t.d/2+108,5,26,5,trim);}
+  for(const side of [-1,1]){const x=t.x+side*(t.w/2+10);block(x,0,t.z+t.d/2+20,5,t.height-15,5,trim);block(x,t.height-15,t.z+t.d/2+20,27,6,10,'#c7d6c9');glow(region,x,t.height-11,t.z+t.d/2+20,24,3,8);}
+  // Gate canopy stays outside the protected runway and apron footprint.
+  block(t.x-t.w/2+16,t.height-25,gateZ,70,6,88,roof);for(const side of [-1,1])block(t.x-t.w/2+10,0,gateZ+side*39,4,t.height-25,4,trim);
+  label('DEPARTURES','GATE A1  /  '+(ed?'TORONTO':'EDMONTON'),t.x,102,t.z-t.d/2+8,t.w*.65,region);
+  for(const side of [-1,1])for(const dz of [-62,0,62])glow(region,t.x+side*19,3.3,t.z+dz,3,1,17);
   // Check-in desks, luggage belt, seats and security occupy the sides of the route.
   for(const dz of [-55,-15]){block(t.x+65,0,t.z+dz,80,34,24,trim);block(t.x+65,34,t.z+dz-5,48,27,4,'#234750');glow(region,t.x+65,48,t.z+dz-2.4,42,19,1);}
   for(const dz of [-85,-50]){block(t.x-70,16,t.z+dz,47,5,18,'#456b6b');block(t.x-70,21,t.z+dz-6,47,23,5,'#456b6b');for(const side of [-1,1])block(t.x-70+side*17,0,t.z+dz,4,16,10,trim);}

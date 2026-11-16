@@ -9,7 +9,9 @@ export const ROOM_LAYOUT={
 export const OFFICE_LOUNGE={x:-250,z:65,width:110,depth:44,seatHeight:27,backZ:80,personZ:60,facing:Math.PI};
 
 export function createExperienceScenes({THREE,block,addToDistrict,roomOrigins,wallPoster,chapters,boxGeometry,registerLight}){
- const actors=new Map(),animated=[],colorMaterials=new Map();let studentCount=0;
+ const actors=new Map(),animated=[],colorMaterials=new Map();let studentCount=0;const furniture=[];
+ function solid(o,x,z,w,d,angle=0){furniture.push({room:o.id,x:o.x+x,z:o.z+z,w,d,angle});}
+ function blocked(x,z,room,padding=13){return furniture.some(f=>{if(f.room!==room)return false;const dx=x-f.x,dz=z-f.z,c=Math.cos(f.angle),s=Math.sin(f.angle);return Math.abs(c*dx-s*dz)<f.w/2+padding&&Math.abs(s*dx+c*dz)<f.d/2+padding;});}
  const mat=(color)=>{if(!colorMaterials.has(color))colorMaterials.set(color,new THREE.MeshLambertMaterial({color}));return colorMaterials.get(color);};
  function cube(group,x,y,z,w,h,d,color){const m=new THREE.Mesh(boxGeometry,mat(color));m.position.set(x,y+h/2,z);m.scale.set(w,h,d);group.add(m);return m;}
  function local(o,x,y,z,w,h,d,color){block(o.x+x,(o.y||0)+y,o.z+z,w,h,d,color);}
@@ -26,10 +28,11 @@ export function createExperienceScenes({THREE,block,addToDistrict,roomOrigins,wa
   for(let a=-x+45;a<x;a+=110)for(const z0 of id==='university'?[-280,0,280]:[-95,95]){local(o,a,h-4,z0,65,3,18,'#ece7c9');registerLight({region:id+'-room',x:o.x+a,y:(o.y||0)+h-4,z:o.z+z0,floor:o.y||0,width:65,height:3,depth:18});}
  }
  function chair(o,x,z,color='#435b69',facing=1){local(o,x,24,z,34,5,32,color);local(o,x,29,z-12*facing,34,35,7,color);local(o,x,0,z,6,24,6,'#566364');local(o,x,0,z,34,3,26,'#566364');}
- function desk(o,x,z,w=115){local(o,x,43,z,w,6,52,'#ac9570');for(const a of [-1,1])local(o,x+a*(w/2-10),0,z,6,43,43,'#637275');local(o,x,49,z+14,w*.55,2,13,'#253740');}
+ function desk(o,x,z,w=115){solid(o,x,z,w,52);local(o,x,43,z,w,6,52,'#ac9570');for(const a of [-1,1])local(o,x+a*(w/2-10),0,z,6,43,43,'#637275');local(o,x,49,z+14,w*.55,2,13,'#253740');}
  function plant(o,x,z){local(o,x,0,z,23,25,23,'#ac8b60');local(o,x,25,z,9,40,9,'#3b6c4e');local(o,x,48,z,38,22,30,'#608756');local(o,x-6,68,z-3,25,15,23,'#7d9a63');}
  const workstations=new Map(),npcs=[],guides=[];
  function workArea(o,x,z,angle,owner,triple=false){
+  solid(o,x,z,180,62,angle);solid(o,x-Math.sin(angle)*57,z-Math.cos(angle)*57,35,31,angle);
   const group=new THREE.Group(),parts=[],shapes=(x,y,z,w,h,d,color)=>parts.push({x,y:y+h/2,z,w,h,d,color});
   shapes(0,43,0,180,6,62,'#ac9570');for(const a of [-1,1])shapes(a*76,0,0,7,43,48,'#637275');shapes(0,49,-18,65,2,14,'#263b42');shapes(50,49,-18,20,1,21,'#54746d');shapes(50,50,-18,7,4,11,'#d1d6c2');
   shapes(0,24,-57,35,5,31,'#405a68');shapes(0,29,-71,35,35,7,'#405a68');shapes(0,0,-57,7,24,7,'#6c7f7c');shapes(0,0,-57,38,3,30,'#6c7f7c');shapes(-65,0,-8,26,39,39,'#2d4245');
@@ -98,11 +101,11 @@ export function createExperienceScenes({THREE,block,addToDistrict,roomOrigins,wa
   for(let i=0;i<11;i++){const x=-340+i*65,h=400+(i%4)*90;block(o.x+x,0,o.z-500,45,h,65,i%2?'#68898a':'#8a9c95');for(let y=320;y<h;y+=35)block(o.x+x,y,o.z-466,23,14,2,'#c1cbaa');}
   workArea(o,-155,-100,Math.PI-.65,'td');
   for(let i=0;i<4;i++){desk(o,180,-170+i*95,110);chair(o,180,-125+i*95,'#51686b',-1);display(o,180,67,-178+i*95,43,28,'ENGINEERING',['build · test · ship']);npcPerson(o,180,-125+i*95,i,'Engineering colleague',['The CI checks passed. Let’s review the logs before shipping.','An API trace and a SQL query can tell two parts of the same story.','A clear code review helps the next engineer understand the change.','Reliable automation starts with a repeatable test.'][i]);}
-  const lounge=OFFICE_LOUNGE;local(o,lounge.x,0,lounge.z,lounge.width,lounge.seatHeight,lounge.depth,'#667c71');local(o,lounge.x,lounge.seatHeight,lounge.backZ,lounge.width,30,10,'#667c71');plant(o,315,240);plant(o,-310,-220);
+  const lounge=OFFICE_LOUNGE;solid(o,lounge.x,lounge.z,lounge.width,lounge.depth);solid(o,265,260,148,55);local(o,lounge.x,0,lounge.z,lounge.width,lounge.seatHeight,lounge.depth,'#667c71');local(o,lounge.x,lounge.seatHeight,lounge.backZ,lounge.width,30,10,'#667c71');plant(o,315,240);plant(o,-310,-220);
   local(o,265,0,260,140,60,48,'#849a85');local(o,265,60,260,148,6,55,'#d8d2b8');local(o,260,66,260,27,32,24,'#293d43');local(o,260,98,260,25,3,23,'#738e82');npcPerson(o,205,190,4,'Coffee-break colleague','Coffee first, then one more test run.',false,Math.PI/2);npcPerson(o,lounge.x,lounge.personZ,5,'Software engineer','Good handoffs start with clear notes and reproducible steps.',true,lounge.facing);
  }
  function buildLift(o){shell(o,'lift','#8caaa6');for(const a of [-1,1])local(o,a*90,70,0,4,7,200,'#d3d9ca');local(o,0,0,-109,115,135,5,'#b5c6c2');local(o,0,0,-105,3,135,3,'#617e7b');display(o,0,145,-105,100,26,'LIFT · G → 21',['YOUR NEXT CHAPTER']);}
  function buildRoom(id){const o={...roomOrigins[id],id};if(id==='home')buildHome(o);if(id==='university')buildUniversity(o);if(id==='concourse')buildConcourse(o);if(id==='td')buildOffice(o);if(id==='lift')buildLift(o);if(chapters[id]?.image&&ROOM_LAYOUT[id].poster)wallPoster(o,chapters[id].image,id);}
  function animate(t,room,speaking){for(const npc of npcs)if(npc.room===room)npc.head.rotation.y=Math.sin(t*.8+npc.x)*.12;for(const a of animated){if(a.id!==room)continue;if(speaking===a.id&&!a.teaching){a.arms[0].rotation.z=-.35+Math.sin(t*2)*.15;}else a.arms[0].rotation.z=0;if(a.teaching){a.arms[0].rotation.x=-1.3+Math.sin(t*1.5)*.22;a.arms[0].rotation.z=-.3;a.arms[1].rotation.x=-.3;}else{a.arms[0].rotation.x=-1.05+Math.sin(t*7)*.09;const phase=(t%10)/10,sip=a.suit&&phase>.65?Math.sin((phase-.65)/.35*Math.PI):0;a.arms[1].rotation.x=-1.05-sip*1.4+(sip===0?Math.sin(t*6+.8)*.08:0);}}}
- return {buildRoom,animate,actors,workstations,npcs,guides,createExplorer:()=>avatar('explorer',{x:0,z:0},0,0,{player:true}),nearbyGuide(x,z,room,radius=130){return guides.find(g=>g.room===room&&Math.hypot(g.x-x,g.z-z)<radius);},nearbyNpc,get studentCount(){return studentCount;}};
+ return {buildRoom,animate,actors,workstations,npcs,guides,blocked,furniture,createExplorer:()=>avatar('explorer',{x:0,z:0},0,0,{player:true}),nearbyGuide(x,z,room,radius=130){return guides.find(g=>g.room===room&&Math.hypot(g.x-x,g.z-z)<radius);},nearbyNpc,get studentCount(){return studentCount;}};
 }

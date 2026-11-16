@@ -66,3 +66,9 @@ test('Walterdale deck and approach heights meet continuously above the river ter
  for(const sign of [-1,1]){const end=-1740+sign*235;assert.equal(bridgeRoadHeight(370,end),BRIDGE_DECK);assert.equal(bridgeRoadHeight(370,end+sign*80),ROAD_LEVELS.asphalt);assert(Math.abs(bridgeRoadHeight(370,end+sign*.001)-BRIDGE_DECK)<.001);assert.equal(bridgeRoadHeight(370,end+sign*81),null);}
  assert.equal(bridgeRoadHeight(500,-1740),null);
 });
+
+
+test('Office sofa blocks walking and jumping footprints while the new guided aisle stays clear',()=>{
+ const previous=globalThis.document;globalThis.document={createElement:()=>({width:0,height:0,getContext:()=>({fillRect(){},fillText(){}})})};
+ try{const o={x:-5000,z:2200,y:567},scene=createExperienceScenes({THREE,block(){},addToDistrict(){},roomOrigins:{td:o},wallPoster(){},chapters:{},boxGeometry:new THREE.BoxGeometry(1,1,1),registerLight(){}});scene.buildRoom('td');assert(scene.blocked(o.x-250,o.z+65,'td'));assert(scene.blocked(o.x-250,o.z+95,'td'));assert(!scene.blocked(o.x-250,o.z+115,'td'));const route=[[110,255],[0,180],[-135,120],[-135,15],[-230,15]];for(let i=1;i<route.length;i++)for(let t=0;t<=1;t+=.02)assert(!scene.blocked(o.x+route[i-1][0]+(route[i][0]-route[i-1][0])*t,o.z+route[i-1][1]+(route[i][1]-route[i-1][1])*t,'td'),'The tour aisle stays outside furniture');}finally{globalThis.document=previous;}
+});
