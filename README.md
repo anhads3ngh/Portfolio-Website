@@ -1,6 +1,6 @@
 # Anhad Singh Sarna — Portfolio & Voxel World
 
-A software engineering portfolio with a playable, Minecraft-inspired voxel landscape, first-person and third-person 3D views, and a separate overhead map. The main portfolio uses a quiet, text-led layout with warm ivory and sage colours, plain-text names, and no logos or game imagery. Work, experience and contact information stay on the homepage; the interactive tour opens through a simple play link.
+A software engineering portfolio with a playable, Minecraft-inspired voxel landscape, first-person and third-person 3D views, and a separate overhead map. The homepage uses an original coastal sunset illustration, deep violet and pink colours, and large cinematic typography inspired by GTA VI’s visual atmosphere. It introduces Anhad and his engineering work with plain-text names and no logos or voxel artwork. The playable portfolio remains available through the navigation and Play my story button.
 
 ## Run locally
 
@@ -74,7 +74,7 @@ Each building has a distinct 3D interior, chapter-specific content, an outside e
 - `game/landmark-buildings.js`: batched architectural geometry for the mansion, university, and TD tower.
 - `game/experience-scenes.js`: photo-inspired voxel character, animated typing/coffee poses, bedroom workstation, instanced 60-student lab, TD concourse, floor-21 office, and lift cabin.
 - `assets/td-terrace.jpg`, `assets/ualberta-campus.jpg`, `assets/spacecopy-remote.jpg`: AI-generated voxel interpretations used inside the game galleries. The mansion is a fictional remote-work metaphor.
-- `projects-data.js`: the shared 13-project catalog used by the homepage, game, and classic layout. AeroWatch and MatchPulse descriptions are based on their repository READMEs. PulseOps, Cassandra Log Explorer, AeroWatch and MatchPulse link to their published repositories; other projects show a title and description.
+- `projects-data.js`: the shared 16-project catalog used by the homepage, game, and classic layout. Project descriptions are based on the repository READMEs. MerchantGuard AI, StrataOps and AgriVision AI are marked as new additions. PulseOps, Cassandra Log Explorer, AeroWatch, MatchPulse, MerchantGuard AI, StrataOps and AgriVision AI link to their published repositories; other projects show a title and description.
 - `assets/voxel-world.svg`: archived vector illustration; the homepage does not display game artwork.
 - `assets/Anhad_Singh_Sarna_Resume.pdf`: downloadable résumé.
 - `classic/`: alternate access to the conventional portfolio layout.
@@ -113,7 +113,7 @@ City references: [Walterdale Bridge, City of Edmonton](https://www.edmonton.ca/p
 
 The ending and the **Exit** control include a required sender email and message. **Send feedback by email** opens a prefilled draft addressed to `assarna@ualberta.ca`; the visitor reviews and sends it in their email app. This is a static GitHub Pages site, so no background email delivery or server-side message storage is claimed.
 
-Night lighting batches windows by spatial cell and reserves halos for actual lamps. Nearest-light selection is cached and uses a linear search. Camera vectors are reused, idle third-person obstruction checks are cached, and horizontal trackpad orbit uses a gentler sensitivity without automatic spin. Game assets use cache version 20.
+Night lighting batches windows by spatial cell and reserves halos for actual lamps. Nearest-light selection is cached and uses a linear search. Camera vectors are reused, idle third-person obstruction checks are cached, and horizontal trackpad orbit uses a gentler sensitivity without automatic spin. Game mechanics retain cache version 20; the shared catalog and game project script use version 21. Homepage assets use sunset21.
 
 
 Roads use a shared network in `game/road-network.js`. Asphalt rectangles are joined without coplanar overlaps, sidewalks are cut around intersections, and the full airport access route includes paved turning and arrival space. Terrain is flattened under road corridors, including the eastern Edmonton road. Walterdale’s deck sits above the underlying river tiles and has sloped approaches at both ends. Passenger crossings and night glow pools sit above the paving.
@@ -121,6 +121,8 @@ Roads use a shared network in `game/road-network.js`. Asphalt rectangles are joi
 The floor-21 lounge colleague sits on the sofa cushion and faces away from the backrest. City NPC bodies share a district instance batch; office NPC heads, vehicle headlamps, the airport car body and aircraft body also use instance batches. A static collision grid speeds up movement and camera probes. Render resolution adapts with a cooldown so short frame-time spikes do not repeatedly resize the canvas.
 
 
-After returning to Edmonton, autoplay walks from the main quad to the engineering workshop and presents all 13 projects. The showcase advances automatically and offers Previous, Next, Pause/Resume and Finish controls. Opening a repository pauses the tour. Feedback and the ending appear after the showcase. Published GitHub links are available for PulseOps, Cassandra Log Explorer, AeroWatch and MatchPulse.
+After returning to Edmonton, autoplay walks from the main quad to the engineering workshop and presents all 16 projects. The showcase advances automatically and offers Previous, Next, Pause/Resume and Finish controls. Opening a repository pauses the tour. Feedback and the ending appear after the showcase. Published GitHub links are available for all seven public portfolio repositories.
 
 Office sofas, desks and the coffee counter have room-aware movement boundaries, including while jumping. Rotated workstation boundaries match the desk orientation. The guided floor-21 aisle goes around the lounge. Both airport terminals have stepped roofs, clerestory glazing, gate canopies, departure boards with the correct destination, and lit forecourts; the protected runway areas and passenger corridors remain clear.
+
+The original hero artwork is `assets/coastal-sunset-hero.jpg`; generation details and the final prompt are documented in `assets/image-prompts.md`. The homepage loads one static image and uses CSS for the layout, with reduced-motion support and responsive typography.

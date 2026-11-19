@@ -10,3 +10,12 @@ Create a premium landscape 3:2 Minecraft-style voxel architectural illustration 
 
 ## Space Copy remote workspace
 Create a premium landscape 3:2 Minecraft-style voxel illustration for a software internship portfolio card. Subject: an imaginary remote-work mansion, a beautiful sprawling warm cream and sandstone home with dark forest-green roofs, a cozy home office clearly visible through a big illuminated window with dual monitors and a desk, a small telescope on the balcony alluding to aerospace software. Surrounded by pine trees, a tidy garden and a stone path. Isometric three-quarter architectural diorama, blue hour with a starry teal sky and inviting golden interior lights, lovely detailed Minecraft block materials. Expressive and cozy, luxurious but tasteful, cinematic editorial game art. No people, no logos, no text, no watermark. The mansion is an imaginative metaphor for remote work, not a real company office. Save image for use in website.
+
+
+## Coastal sunset homepage artwork
+
+Generated with the built-in image generation tool. Original PNG retained under the generated-images directory; website delivery asset: `assets/coastal-sunset-hero.jpg` (JPEG encoding for delivery).
+
+Final prompt:
+
+Use case: stylized-concept. Asset type: original panoramic website hero artwork, landscape 1792x1024. Create a spectacular cinematic hand-painted digital illustration inspired by contemporary Miami open-world game cover art, entirely original. A palm-lined coastal boulevard at blue hour, blazing pink coral and peach sunset reflected in turquoise ocean, distant sleek art-deco skyline and a low elevated coastal bridge. A small unbranded ivory vintage sports coupe on the winding road in lower right. Tall elegant silhouetted palms frame the right edge and middle distance. Lush tropical roadside plants, neon rose reflections, deep midnight violet shadows, rich atmospheric depth, detailed realistic perspective with crisp painted edges and subtle film grain. Composition for a portfolio hero: left 40 percent relatively quiet deep violet shadow and soft sky for HTML headline; visual drama, road, ocean and glowing skyline concentrated in right 65 percent. Horizon upper middle, low cinematic angle. Moody, sophisticated, vivid, premium editorial game key art. NO lettering, NO text, NO symbols, NO logos, NO watermarks, NO brands, NO people, NO voxel blocks, NO interface. Render a complete immersive environment, not a website mockup.
