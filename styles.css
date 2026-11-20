@@ -14,6 +14,6 @@
 @media(prefers-reduced-motion:reduce){.featured-project{transform:none!important}.cursor-ring,.cursor-aura,.cursor-spark{display:none!important}}
 .featured-project{display:flex;flex-direction:column}.featured-project:before{flex:0 0 5px}.featured-project .project-body{height:auto;flex:1}
 
-/* Scroll entrances use independent translate/scale, preserving pointer tilt. */
-.scroll-pending{opacity:0}.headline-line{display:block;overflow:clip;padding-bottom:.12em;margin-bottom:-.12em}.headline-text{display:block}.hero-content,.hero-atmosphere{backface-visibility:hidden}
-@media(prefers-reduced-motion:reduce){.scroll-pending{opacity:1}.hero-content,.hero-atmosphere{translate:none!important;opacity:1!important}}
+/* Independent properties preserve card tilt and keep layout still while fading. */
+.scroll-scene{transform-origin:50% 50%}.scroll-scene:focus-within{opacity:1!important;translate:none!important;scale:1!important}.hero-content,.hero-atmosphere{backface-visibility:hidden}
+@media(prefers-reduced-motion:reduce){.scroll-scene,.hero-content,.hero-atmosphere{translate:none!important;scale:none!important;opacity:1!important}}

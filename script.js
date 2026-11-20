@@ -7,8 +7,8 @@ const filters=[...document.querySelectorAll('.filter')];
 filters.forEach(button=>button.addEventListener('click',()=>{
   const category=button.dataset.filter;let visible=0,archived=0;
   filters.forEach(b=>{const selected=b===button;b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));});
-  document.querySelectorAll('.project-card').forEach(card=>{card.hidden=category!=='all'&&card.dataset.category!==category;if(!card.hidden){visible++;if(card.classList.contains('archive-project'))archived++;revealScrollElement(card);}});
-  document.querySelector('#filter-count').textContent=`${visible} PROJECT${visible===1?'':'S'}`;document.querySelector('.archive-heading').hidden=archived===0;grid.hidden=![...grid.children].some(card=>!card.hidden);
+  document.querySelectorAll('.project-card').forEach(card=>{card.hidden=category!=='all'&&card.dataset.category!==category;if(!card.hidden){visible++;if(card.classList.contains('archive-project'))archived++;}});
+  document.querySelector('#filter-count').textContent=`${visible} PROJECT${visible===1?'':'S'}`;document.querySelector('.archive-heading').hidden=archived===0;grid.hidden=![...grid.children].some(card=>!card.hidden);refreshScrollScenes();
 }));
 const menu=document.querySelector('.menu-toggle'),mobileNav=document.querySelector('.mobile-nav'),header=document.querySelector('.header');
 function closeMenu(){if(!menu||!mobileNav)return;mobileNav.hidden=true;menu.setAttribute('aria-expanded','false');menu.setAttribute('aria-label','Open navigation');}
@@ -20,67 +20,59 @@ window.addEventListener('resize',()=>{if(innerWidth>850)closeMenu();},{passive:t
 const scrollMotionPreference=matchMedia('(prefers-reduced-motion:reduce)'),topButton=document.querySelector('.back-to-top'),progress=document.querySelector('.scroll-progress');let scrollQueued=false;
 const hero=document.querySelector('.hero'),heroContent=document.querySelector('.hero-content'),heroAtmosphere=document.querySelector('.hero-atmosphere');
 let heroHeight=hero?.offsetHeight||1;
+const easeScroll=value=>{const t=Math.max(0,Math.min(1,value));return t*t*(3-2*t);};
 function updateScroll(){
   const max=document.documentElement.scrollHeight-innerHeight,y=Math.max(0,scrollY);
   progress.style.transform=`scaleX(${max>0?Math.min(1,y/max):0})`;header.classList.toggle('scrolled',y>15);topButton.classList.toggle('visible',y>650);
   if(heroContent&&!scrollMotionPreference.matches&&y<heroHeight+innerHeight){
     const amount=Math.min(1,y/heroHeight),mobile=innerWidth<=650;
-    heroContent.style.translate=`0 ${-amount*(mobile?24:74)}px`;heroContent.style.opacity=String(1-amount*.55);
+    const fade=easeScroll(amount/.72);heroContent.style.translate=`0 ${-fade*(mobile?24:74)}px`;heroContent.style.opacity=String(1-fade);heroContent.style.scale=String(1-fade*.045);
     heroAtmosphere.style.translate=`0 ${amount*(mobile?25:100)}px`;
   }
-  scrollQueued=false;
+  updateScrollScenes();scrollQueued=false;
 }
-window.addEventListener('scroll',()=>{if(!scrollQueued){scrollQueued=true;requestAnimationFrame(updateScroll);}},{passive:true});
-window.addEventListener('resize',()=>{heroHeight=hero?.offsetHeight||1;if(!scrollQueued){scrollQueued=true;requestAnimationFrame(updateScroll);}},{passive:true});updateScroll();
+document.addEventListener('scroll',queueScrollUpdate,{passive:true,capture:true});
+window.addEventListener('resize',()=>{heroHeight=hero?.offsetHeight||1;if(!scrollQueued){scrollQueued=true;requestAnimationFrame(updateScroll);}},{passive:true});
 topButton?.addEventListener('click',()=>window.scrollTo({top:0,behavior:scrollMotionPreference.matches?'auto':'smooth'}));
 
-// Reveal once on entry. The Web Animations API keeps scroll movement independent
-// of the project cards' pointer tilt, and leaves no idle animation loop behind.
-let revealObserver=null;const scrollAnimations=new Map();
-function revealScrollElement(el,immediate=false){
-  if(!el.classList.contains('scroll-pending'))return;
-  revealObserver?.unobserve(el);el.classList.remove('scroll-pending');el.classList.add('is-visible');
-  if(immediate||scrollMotionPreference.matches||!el.animate)return;
-  const mobile=innerWidth<=650,delay=Number(el.dataset.scrollDelay||0),lines=el.querySelectorAll(':scope > .headline-line > .headline-text');
-  const targets=lines.length?[...lines]:[el],animations=[];
-  targets.forEach((target,index)=>{
-    const heading=lines.length>0,row=el.dataset.scrollKind==='row';
-    const animation=target.animate([
-      {opacity:0,translate:heading?'0 105%':row?`${mobile?-12:-24}px 0`:`0 ${mobile?22:42}px`,scale:el.classList.contains('featured-project')?'.975':'1'},
-      {opacity:1,translate:'0 0',scale:'1'}
-    ],{duration:heading?950:mobile?620:820,delay:delay+index*100,fill:'backwards',easing:'cubic-bezier(.16,1,.3,1)'});
-    animations.push(animation);
-    animation.finished.then(()=>{const running=scrollAnimations.get(el);if(running===animations&&running.every(a=>a.playState==='finished'))scrollAnimations.delete(el);}).catch(()=>{});
-  });
-  scrollAnimations.set(el,animations);
+// Fade out the previous content and scale in the next as the viewport moves.
+// Cache layout positions separately from transforms to avoid feedback or layout
+// reads on every scroll frame. Only nearby scenes need updating while scrolling.
+const sceneUnits=[...document.querySelectorAll('.hero-footer,.intro-strip>.wrap,.section-heading,.section-intro,.work-toolbar,.featured-project,.archive-heading,.archive-project,.about-grid>div,.experience-card,.toolkit-layout>div,.contact-top,#contact-title,.contact-bottom,.footer')];
+const scenePositions=new Map(),nearbyScenes=new Set();let sceneObserver=null,sceneHeaderHeight=header.offsetHeight;
+function queueScrollUpdate(){if(!scrollQueued){scrollQueued=true;requestAnimationFrame(updateScroll);}}
+function resetScene(el){el.style.removeProperty('opacity');el.style.removeProperty('translate');el.style.removeProperty('scale');}
+function refreshScrollScenes(){
+  sceneHeaderHeight=header.offsetHeight;
+  // offsetTop/offsetHeight describe the untransformed layout, including when a
+  // card currently has a hover tilt or is scaling during an entrance.
+  for(const el of sceneUnits){let top=0,node=el;while(node){top+=node.offsetTop;node=node.offsetParent;}scenePositions.set(el,{top,height:el.offsetHeight});}
+  for(const el of sceneUnits)paintScrollScene(el);
+  queueScrollUpdate();
 }
-function initScrollReveals(){
-  if(!('IntersectionObserver' in window)||scrollMotionPreference.matches||!Element.prototype.animate)return;
-  // Line masks preserve the heading's text, semantic level and natural wrapping.
-  document.querySelectorAll('main h2').forEach(heading=>{
-    if(!/<br\s*\/?>/i.test(heading.innerHTML))return;
-    const lines=heading.innerHTML.split(/<br\s*\/?>/i);heading.replaceChildren();
-    lines.forEach((html,index)=>{if(index)heading.append(document.createTextNode(' '));const mask=document.createElement('span'),line=document.createElement('span');mask.className='headline-line';line.className='headline-text';line.innerHTML=html;mask.append(line);heading.append(mask);});
-  });
-  revealObserver=new IntersectionObserver(entries=>{
-    entries.filter(entry=>entry.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top).forEach(entry=>revealScrollElement(entry.target));
-  },{threshold:0,rootMargin:'0px 0px -7% 0px'});
-  const selectors=['.intro-strip p','.intro-strip>div>span','.section-heading','main h2','.section-intro>p','.section-intro>div','.work-toolbar','.featured-project','.archive-heading','.archive-project','.about-signature','.about-copy>p','.about-stats>div','.experience-meta','.experience-logo','.experience-role','.experience-card p:not(.experience-role)','.experience-foot','.toolkit-note','.tool-list>div','.contact-top','.contact-bottom','.footer'];
-  document.querySelectorAll(selectors.join(',')).forEach(el=>{el.classList.add('scroll-pending');revealObserver.observe(el);});
-  ['.projects-grid','.project-archive','.about-stats','.tool-list'].forEach(selector=>{
-    const group=document.querySelector(selector);if(!group)return;
-    [...group.children].forEach((el,index)=>{el.dataset.scrollDelay=String((index%(selector==='.project-archive'?3:2))*90);if(selector==='.tool-list')el.dataset.scrollKind='row';});
-  });
+function paintScrollScene(el){
+  if(!sceneObserver||scrollMotionPreference.matches||el.hidden||el.contains(document.activeElement)){resetScene(el);return;}
+  const box=scenePositions.get(el);if(!box||!box.height)return;
+  const top=box.top-scrollY,bottom=top+box.height,entry=easeScroll((innerHeight-top)/Math.min(innerHeight*.28,box.height*.65)),exit=easeScroll((bottom-sceneHeaderHeight-12)/Math.min(innerHeight*.25,box.height*.55));
+  const visibility=Math.min(entry,exit),mobile=innerWidth<=650;
+  el.style.opacity=visibility.toFixed(3);el.style.translate=`0 ${((1-entry)*(mobile?18:34)-(1-exit)*(mobile?12:24)).toFixed(2)}px`;el.style.scale=(1-(1-visibility)*(mobile?.025:.065)).toFixed(4);
 }
-initScrollReveals();
+function updateScrollScenes(){for(const el of nearbyScenes)paintScrollScene(el);}
+if('IntersectionObserver' in window){
+  sceneUnits.forEach(el=>el.classList.add('scroll-scene'));
+  sceneObserver=new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting)nearbyScenes.add(entry.target);else{nearbyScenes.delete(entry.target);paintScrollScene(entry.target);}}queueScrollUpdate();},{rootMargin:'120px 0px',threshold:0});
+  sceneUnits.forEach(el=>sceneObserver.observe(el));
+  if('ResizeObserver' in window)new ResizeObserver(refreshScrollScenes).observe(document.querySelector('main'));
+  window.addEventListener('resize',refreshScrollScenes,{passive:true});
+  document.fonts?.ready.then(refreshScrollScenes);refreshScrollScenes();
+}
 function settleScrollMotion(){
-  if(!scrollMotionPreference.matches){updateScroll();return;}
-  revealObserver?.disconnect();for(const animations of scrollAnimations.values())for(const animation of animations)animation.cancel();scrollAnimations.clear();
-  document.querySelectorAll('.scroll-pending').forEach(el=>revealScrollElement(el,true));
-  heroContent?.style.removeProperty('translate');heroContent?.style.removeProperty('opacity');heroAtmosphere?.style.removeProperty('translate');
+  if(scrollMotionPreference.matches){sceneUnits.forEach(resetScene);heroContent?.style.removeProperty('translate');heroContent?.style.removeProperty('opacity');heroContent?.style.removeProperty('scale');heroAtmosphere?.style.removeProperty('translate');}
+  else refreshScrollScenes();
 }
 scrollMotionPreference.addEventListener('change',settleScrollMotion);
-document.addEventListener('focusin',event=>{const pending=event.target.closest?.('.scroll-pending');if(pending)revealScrollElement(pending,true);});
+document.addEventListener('focusin',event=>{const scene=event.target.closest?.('.scroll-scene');if(scene)resetScene(scene);queueScrollUpdate();});
+document.addEventListener('focusout',queueScrollUpdate);updateScroll();
 if('IntersectionObserver' in window){const navObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting)document.querySelectorAll('.desktop-nav a').forEach(a=>a.classList.toggle('active',a.hash==='#'+entry.target.id));}),{rootMargin:'-15% 0px -65% 0px',threshold:0});document.querySelectorAll('section[id]').forEach(section=>navObserver.observe(section));}
 const copyButton=document.querySelector('#copy-email'),copyStatus=document.querySelector('#copy-status');
 copyButton?.addEventListener('click',async()=>{
