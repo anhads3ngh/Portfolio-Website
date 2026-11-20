@@ -1,6 +1,6 @@
 # Anhad Singh Sarna — Portfolio & Voxel World
 
-A software engineering portfolio with a playable, Minecraft-inspired voxel landscape, first-person and third-person 3D views, and a separate overhead map. The homepage uses an original coastal sunset illustration, deep violet and pink colours, and large cinematic typography inspired by GTA VI’s visual atmosphere. It introduces Anhad and his engineering work with authentic organization logos in the experience section and no voxel artwork on the homepage. The playable portfolio remains available through the navigation and Play my story button.
+A software engineering portfolio with a playable, Minecraft-inspired voxel landscape, first-person and third-person 3D views, and a separate overhead map. The homepage uses deep violet and pink colours, large cinematic typography, and CSS gradients inspired by GTA VI’s visual atmosphere. The hero is entirely text-led and loads no background image. It introduces Anhad and his engineering work with authentic organization logos in the experience section and no voxel artwork on the homepage. The playable portfolio remains available through the navigation and Play my story button.
 
 ## Run locally
 
@@ -113,7 +113,7 @@ City references: [Walterdale Bridge, City of Edmonton](https://www.edmonton.ca/p
 
 The ending and the **Exit** control include a required sender email and message. **Send feedback by email** opens a prefilled draft addressed to `assarna@ualberta.ca`; the visitor reviews and sends it in their email app. This is a static GitHub Pages site, so no background email delivery or server-side message storage is claimed.
 
-Night lighting batches windows by spatial cell and reserves halos for actual lamps. Nearest-light selection is cached and uses a linear search. Camera vectors are reused, idle third-person obstruction checks are cached, and horizontal trackpad orbit uses a gentler sensitivity without automatic spin. Game mechanics retain cache version 20; the shared catalog and game project script use version 21. Homepage assets use sunset21.
+Night lighting batches windows by spatial cell and reserves halos for actual lamps. Nearest-light selection is cached and uses a linear search. Camera vectors are reused, idle third-person obstruction checks are cached, and horizontal trackpad orbit uses a gentler sensitivity without automatic spin. Game mechanics retain cache version 20; the shared catalog and game project script use version 21. Homepage styles and interactions use type24.
 
 
 Roads use a shared network in `game/road-network.js`. Asphalt rectangles are joined without coplanar overlaps, sidewalks are cut around intersections, and the full airport access route includes paved turning and arrival space. Terrain is flattened under road corridors, including the eastern Edmonton road. Walterdale’s deck sits above the underlying river tiles and has sloped approaches at both ends. Passenger crossings and night glow pools sit above the paving.
@@ -125,7 +125,7 @@ After returning to Edmonton, autoplay walks from the main quad to the engineerin
 
 Office sofas, desks and the coffee counter have room-aware movement boundaries, including while jumping. Rotated workstation boundaries match the desk orientation. The guided floor-21 aisle goes around the lounge. Both airport terminals have stepped roofs, clerestory glazing, gate canopies, departure boards with the correct destination, and lit forecourts; the protected runway areas and passenger corridors remain clear.
 
-The original hero artwork is `assets/coastal-sunset-hero.jpg`; generation details and the final prompt are documented in `assets/image-prompts.md`. The homepage loads one static image and uses CSS for the layout, with reduced-motion support and responsive typography.
+The previous illustration remains archived as `assets/coastal-sunset-hero.jpg`, with its prompt in `assets/image-prompts.md`; the homepage does not reference or download it. Employer logos remain visible in the experience section.
 
 
 The experience headlines are replaced by original organization marks. TD and Space Copy assets come from their public website headers; the University of Alberta vector is the published 2021 logo. Files retain the source colours and proportions:
@@ -135,3 +135,6 @@ The experience headlines are replaced by original organization marks. TD and Spa
 - `assets/logos/space-copy.webp`: https://static.wixstatic.com/media/d4e3dd_a5020a4578f045bfb1fb04bcb0202849~mv2.webp
 
 The logos identify prior work and university experience. Role descriptions, dates and remote-work details remain alongside them.
+
+
+All seven projects with published repository links use the large two-column card grid. The nine unlinked experiments retain their compact layout. Category filters cover both groups. On a mouse or trackpad, cursor movement produces a soft glow, a trailing ring and short-lived sparkles, while repository cards respond with a restrained tilt and spotlight. These effects keep the native cursor and never intercept clicks. Animation stops when the pointer settles or leaves the page; touch input and reduced-motion preferences disable the effects.
