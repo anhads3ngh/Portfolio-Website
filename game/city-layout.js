@@ -24,7 +24,7 @@ export const CITY_CITIZENS=[
   [-2000,-480,'Airport visitor','Hi! The terminal is open. Blue paths are for passengers; amber is the campus transfer.'],
   [-340,210,'Neighbour','Hey! The home workspace is just along the garden path.'],
   [620,170,'Computing student','Hi! The computer lab is open. Anhad is teaching at the front.'],
-  [830,180,'Campus visitor','Welcome to Edmonton! Look for the river valley after takeoff.'],
+  [1180,-820,'Campus visitor','Welcome to Edmonton! Look for the river valley after takeoff.'],
   [845,-210,'Airport greeter','Boarding for Toronto? Follow the glowing trail to the plane.'],
   [665,-370,'Library visitor','Hi! The library, engineering pavilion and commons are all around the campus loop.'],
   [665,-880,'Engineering student','Hey! A good place to build something, then try to break it.'],
@@ -97,7 +97,7 @@ export const CAMPUS_ROADS=[
  {name:'CAMPUS LOOP',axis:'z',x:540,z:-650,length:1000,width:160},
  {name:'CAMPUS AVENUE',axis:'x',x:300,z:-235,length:1050,width:110}
 ];
-export function inCampus(x,z,margin=0){return x>150-margin&&x<890+margin&&z>-1200-margin&&z<0+margin;}
+export function inCampus(x,z,margin=0){return x>150-margin&&x<1480+margin&&z>-1200-margin&&z<0+margin;}
 export const VEHICLE_DIMENSIONS={car:{length:168,width:66,height:62},bus:{length:290,width:78,height:96},streetcar:{length:390,width:76,height:125},bicycle:{length:76,width:28,height:92}};
 export const CITY_TRAFFIC=[
  {id:'toronto-streetcar',type:'streetcar',x:4260,z:-720,axis:'x',length:1120,speed:42,phase:0,color:'#b94d42',region:'toronto'},

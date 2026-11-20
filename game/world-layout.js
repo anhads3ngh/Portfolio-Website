@@ -11,5 +11,6 @@ export function inAirportLand(x,z,margin=0){return Object.values(AIRPORTS).some(
 export function terminalAt(x,z){return Object.values(AIRPORTS).find(a=>Math.abs(x-a.terminal.x)<a.terminal.w/2&&Math.abs(z-a.terminal.z)<a.terminal.d/2)?.terminal;}
 export const RESIDENTIAL_HOMES=Array.from({length:9},(_,i)=>({id:'neighbourhood-'+i,x:-980+(i%3)*235,z:-1080+Math.floor(i/3)*285,w:148,d:112,height:90+(i%3)*12}));
 export function inNeighbourhood(x,z){return x>-1160&&x<-320&&z>-1210&&z<-350;}
+export const EXPERIENCE_PLACES={home:{x:-450,z:-140},university:{x:1250,z:-1000},td:{x:4500,z:-300}};
 export const MAIN_QUAD={x:380,z:100,w:420,d:220};
 export const PATH_STYLES={home:{color:'#b69973',edge:'#e0caa6',glow:'#f5d693',label:'HOME / GARDEN WALK'},campus:{color:'#d3d3bb',edge:'#8a6856',glow:'#b4f9cc',label:'CAMPUS / STONE WALK'},airport:{color:'#709aa3',edge:'#d6e6d7',glow:'#8dddf4',label:'AIRPORT / BLUE PASSENGER ROUTE'},office:{color:'#aab8b0',edge:'#d2d1bc',glow:'#d9c1f0',label:'OFFICE / INDOOR ROUTE'}};

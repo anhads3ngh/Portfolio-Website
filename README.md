@@ -22,19 +22,19 @@ The game opens on an instruction screen before loading the 3D world. Choose **Au
 - In third person, swipe horizontally with two fingers to orbit a full 360°. Shift + a vertical swipe also orbits. Vertical scrolling walks; A/D strafe. Each wheel gesture locks its axis, and the camera stops turning as soon as the gesture stops. Ordinary hover still provides bounded cursor look.
 - Press F or use the view button to switch between first person and a close third-person camera. Press M or World Map for the enlarged 2D map; the view button returns to 3D. Third person uses a smaller portrait-inspired character with animated legs and arms, a wider view of the world, and a camera that adjusts for nearby walls. The body faces the direction of travel instead of rotating with an idle cursor.
 - In the overhead map, click the ground to walk; use bridges to cross the stream. Water blocks walking, click-to-walk, and jumping, with a short swimming-skills message.
-- In 3D, the bottom navigation takes you to the cabin, workshop, tower or contact portal; press E or Enter to open its content. In the overhead map, click a building to open its story. The experience portal opens the chronological journey.
+- In 3D, the bottom navigation takes you to the cabin, workshop, tower or conversation garden; press E or Enter to open its content. In the overhead map, click a building to open its story. Use Start my journey for the chronological walk.
 - Escape or the close button returns to the world.
 - Collect eight crystals and discover five landmarks. Progress lasts for the current page session.
 - Use the day/night button, zoom controls or mouse wheel, and home button to explore at your own pace.
 - Touch controls and direct landmark navigation support mobile devices.
 
-The cabin introduces the builder; the workshop presents projects; the watchtower explains the technical toolkit; the original portal provides contact links.
+The cabin introduces the builder; the workshop presents projects; the watchtower explains the technical toolkit; the garden pavilion provides contact links.
 
 ## Experience journey
 
-Open `/game/?journey=experience`, use the **Experience Portal** button, or walk through the purple portal near spawn.
+Open `/game/?journey=experience`, use **Start my journey**, or follow the connected paths to each building.
 
-1. **Home base:** approach the mansion door and press E or click Enter. Inside the furnished bedroom-office, meet a photo-inspired voxel Anhad typing at a three-monitor workstation and read the Space Copy remote internship chapter. Continue to the university.
+1. **Home base:** approach the mansion door and press E or click Enter. Inside the furnished bedroom-office, meet a photo-inspired voxel Anhad typing at a three-monitor workstation and read the Space Copy aerospace software internship chapter. Continue to the university.
 2. **University of Alberta:** enter a 60-seat computer lab to see Anhad teaching at the front and explore the teaching and study chapter. Explore the main quad and campus departments, then follow the stone path to the airport car pickup.
 3. **Campus → Edmonton Airport:** Anhad drives a full-size car along the amber access road to a terminal more than 3,000 world units from the university. Pause or skip the drive. Follow the blue passenger route through check-in and security to Gate A1.
 4. **Edmonton → Toronto:** approach the aircraft and board with E, click Take flight, or use the journey navigation. The aircraft taxis onto a marked 1,020-unit runway, accelerates, rotates, climbs, flies past snowy mountain ridges and valleys, makes an aligned approach, flares, touches down, rolls out and taxis to a separate arrival apron. Airborne phase speeds join continuously; wheel and fan animations follow the flight and freeze when paused. A skip option and a shorter reduced-motion version are available.
@@ -101,7 +101,7 @@ The house, University of Alberta, and TD Terrace are solid 3D voxel buildings wi
 
 GitHub Pages serves the static repository from `main` at `/`, with `.nojekyll` preserving the static assets. The site URL is https://anhads3ngh.github.io/Portfolio-Website/ and the game is under `/game/`.
 
-All portal and journey placements validate dry, unoccupied ground. Aircraft park on separate aprons, leaving both runways clear. Night mode lights the windows, ceiling fixtures, stone lanterns, street lamps and runway edges. Instanced warm halos and ground pools provide glow, with two reusable local lights selected using 3D distance. Workstation screens face the seated character; keyboards sit between the chair and monitors. The lab includes six talkable student NPCs among its 60 seats; the office has six colleague NPCs. These are illustrative game characters.
+Journey placements validate dry, unoccupied ground. Outdoor pedestrians validate their full footprint against both rivers, decorative ponds and building collisions before rendering. Aircraft park on separate aprons, leaving both runways clear. Night mode lights the windows, ceiling fixtures, stone lanterns, street lamps and runway edges. Instanced warm halos and ground pools provide glow, with two reusable local lights selected using 3D distance. Workstation screens face the seated character; keyboards sit between the chair and monitors. The lab includes six talkable student NPCs among its 60 seats; the office has six colleague NPCs. These are illustrative game characters.
 
 ## Checks
 
@@ -113,7 +113,7 @@ City references: [Walterdale Bridge, City of Edmonton](https://www.edmonton.ca/p
 
 The ending and the **Exit** control include a required sender email and message. **Send feedback by email** opens a prefilled draft addressed to `assarna@ualberta.ca`; the visitor reviews and sends it in their email app. This is a static GitHub Pages site, so no background email delivery or server-side message storage is claimed.
 
-Night lighting batches windows by spatial cell and reserves halos for actual lamps. Nearest-light selection is cached and uses a linear search. Camera vectors are reused, idle third-person obstruction checks are cached, and horizontal trackpad orbit uses a gentler sensitivity without automatic spin. Game mechanics retain cache version 20; the shared catalog and game project script use version 21. Homepage styles and interactions use type24.
+Night lighting batches windows by spatial cell and reserves halos for actual lamps. Nearest-light selection is cached and uses a linear search. Camera vectors are reused, idle third-person obstruction checks are cached, and horizontal trackpad orbit uses a gentler sensitivity without automatic spin. Updated journey modules use cache version 25; unchanged game mechanics retain version 20; the shared catalog and game project script use version 21. Homepage styles and interactions use type24.
 
 
 Roads use a shared network in `game/road-network.js`. Asphalt rectangles are joined without coplanar overlaps, sidewalks are cut around intersections, and the full airport access route includes paved turning and arrival space. Terrain is flattened under road corridors, including the eastern Edmonton road. Walterdale’s deck sits above the underlying river tiles and has sloped approaches at both ends. Passenger crossings and night glow pools sit above the paving.
@@ -138,3 +138,6 @@ The logos identify prior work and university experience. Role descriptions, date
 
 
 All seven projects with published repository links use the large two-column card grid. The nine unlinked experiments retain their compact layout. Category filters cover both groups. On a mouse or trackpad, cursor movement produces a soft glow, a trailing ring and short-lived sparkles, while repository cards respond with a restrained tilt and spotlight. These effects keep the native cursor and never intercept clicks. Animation stops when the pointer settles or leaves the page; touch input and reduced-motion preferences disable the effects.
+
+
+The home-to-campus walk now reaches the teaching building at `(1250, -1000)`, over 1,800 world units from home. Both the manual trail and autoplay follow the new approach and return to the same campus pickup. Portal geometry and proximity triggers have been removed; contact is a garden pavilion. Walkway corners use non-overlapping flat rectangles, and the glowing trail uses floor decals with a flat destination ring instead of a pointed marker. Space Copy descriptions focus on aerospace software development, with no invented technologies or numerical achievements.

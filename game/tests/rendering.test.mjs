@@ -6,8 +6,38 @@ import {createCollisionIndex} from '../collision-index.js';
 import {createFrameQuality} from '../frame-quality.js';
 import {OFFICE_LOUNGE,createExperienceScenes} from '../experience-scenes.js';
 import {createAirportTransfer} from '../airport-transfer.js';
+import {walkSurfaces} from '../path-surfaces.js';
+import {citizenPlacement,waterAt} from '../walking-surfaces.js';
+import {EXPERIENCE_ROUTES} from '../journey-routes.js';
+import {EXPERIENCE_PLACES} from '../world-layout.js';
+import {CITY_CITIZENS} from '../city-layout.js';
 const area=r=>(r.maxX-r.minX)*(r.maxZ-r.minZ),overlap=(a,b)=>Math.max(0,Math.min(a.maxX,b.maxX)-Math.max(a.minX,b.minX))*Math.max(0,Math.min(a.maxZ,b.maxZ)-Math.max(a.minZ,b.minZ));
 const includes=(r,x,z)=>x>=r.minX-1e-7&&x<=r.maxX+1e-7&&z>=r.minZ-1e-7&&z<=r.maxZ+1e-7;
+
+test('Walkway turns share a flat rectangular surface without overlapping corner faces',()=>{
+ for(const route of Object.values(EXPERIENCE_ROUTES)){
+  const surfaces=walkSurfaces(route);
+  for(let i=0;i<surfaces.length;i++)for(let j=i+1;j<surfaces.length;j++)assert.equal(overlap(surfaces[i],surfaces[j]),0);
+  for(let i=1;i<route.length;i++)for(let t=0;t<=1;t+=.05){const x=route[i-1][0]+(route[i][0]-route[i-1][0])*t,z=route[i-1][1]+(route[i][1]-route[i-1][1])*t;assert(surfaces.some(r=>includes(r,x,z)));}
+ }
+});
+
+test('Pedestrians relocate off the small stream and ponds with their entire footprint on dry ground',()=>{
+ const ponds=[{x:420,z:20,w:70,d:56}],blocked=(x,z,zone)=>zone==='edmonton'&&waterAt(x,z,ponds,10);
+ assert(blocked(-340,210,'edmonton'),'Reproduces the neighbour previously standing on the stream');
+ for(const source of [...CITY_CITIZENS,{x:420,z:20,zone:'edmonton'}]){
+  const c=citizenPlacement(source,{groundAt:()=>0,blocked});assert(c);
+  for(const [dx,dz]of [[0,0],[-16,0],[16,0],[0,-16],[0,16]])assert(!blocked(c.x+dx,c.z+dz,c.zone));
+ }
+ assert.equal(citizenPlacement({x:0,z:0,zone:'edmonton'},{groundAt:()=>0,blocked:()=>true}),null,'Do not render a floating fallback when no safe ground exists');
+});
+
+test('The teaching building is farther from home and both walks meet its relocated door',()=>{
+ const {home,university}=EXPERIENCE_PLACES;
+ assert(Math.hypot(home.x-university.x,home.z-university.z)>1800);
+ assert.deepEqual(EXPERIENCE_ROUTES.university.at(-1),[university.x,university.z+110.5]);
+ assert.deepEqual(EXPERIENCE_ROUTES.pickup[0],[university.x,university.z+160]);
+});
 
 test('Crossroads have one asphalt surface and no sidewalk across either road',()=>{
  const roads=[{x:0,z:0,length:200,width:40,axis:'x',region:'test'},{x:0,z:0,length:200,width:40,axis:'z',region:'test'}],surfaces=buildRoadSurfaces(roads),asphalt=surfaces.filter(r=>r.kind==='asphalt'),sidewalks=surfaces.filter(r=>r.kind==='sidewalk');

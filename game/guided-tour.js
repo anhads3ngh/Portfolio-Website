@@ -7,10 +7,10 @@ export function createGuidedTour(api){
   const wait=(label,until,tag)=>({label,until,tag,kind:'wait'}),chapter=(id,steps)=>steps.map(step=>({...step,chapter:id}));
   const steps=[
     ...chapter('home',[
-      action('01 · Welcome to my remote workspace',()=>api.travel('home')),
+      action('01 · Welcome to my workspace',()=>api.travel('home')),
       walk('Follow the garden path into the house','home','home'),
       walk('Meet me at my workstation','room:home'),
-      story('home','Space Copy · a remote internship with an aerospace horizon'),
+      story('home','Space Copy · software development with an aerospace horizon'),
       leave('Leave through the front door, then walk to campus','home')
     ]),
     ...chapter('university',[
