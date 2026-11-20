@@ -1,6 +1,6 @@
 # Anhad Singh Sarna — Portfolio & Voxel World
 
-A software engineering portfolio with a playable, Minecraft-inspired voxel landscape, first-person and third-person 3D views, and a separate overhead map. The homepage uses an original coastal sunset illustration, deep violet and pink colours, and large cinematic typography inspired by GTA VI’s visual atmosphere. It introduces Anhad and his engineering work with plain-text names and no logos or voxel artwork. The playable portfolio remains available through the navigation and Play my story button.
+A software engineering portfolio with a playable, Minecraft-inspired voxel landscape, first-person and third-person 3D views, and a separate overhead map. The homepage uses an original coastal sunset illustration, deep violet and pink colours, and large cinematic typography inspired by GTA VI’s visual atmosphere. It introduces Anhad and his engineering work with authentic organization logos in the experience section and no voxel artwork on the homepage. The playable portfolio remains available through the navigation and Play my story button.
 
 ## Run locally
 
@@ -126,3 +126,12 @@ After returning to Edmonton, autoplay walks from the main quad to the engineerin
 Office sofas, desks and the coffee counter have room-aware movement boundaries, including while jumping. Rotated workstation boundaries match the desk orientation. The guided floor-21 aisle goes around the lounge. Both airport terminals have stepped roofs, clerestory glazing, gate canopies, departure boards with the correct destination, and lit forecourts; the protected runway areas and passenger corridors remain clear.
 
 The original hero artwork is `assets/coastal-sunset-hero.jpg`; generation details and the final prompt are documented in `assets/image-prompts.md`. The homepage loads one static image and uses CSS for the layout, with reduced-motion support and responsive typography.
+
+
+The experience headlines are replaced by original organization marks. TD and Space Copy assets come from their public website headers; the University of Alberta vector is the published 2021 logo. Files retain the source colours and proportions:
+
+- `assets/logos/td-bank.png`: https://www.td.com/content/dam/tdct/images/navigation-header-and-footer/td-logo-desktop.png
+- `assets/logos/university-of-alberta.svg`: https://upload.wikimedia.org/wikipedia/en/e/e8/University_of_Alberta_Logo_%282021%29.svg
+- `assets/logos/space-copy.webp`: https://static.wixstatic.com/media/d4e3dd_a5020a4578f045bfb1fb04bcb0202849~mv2.webp
+
+The logos identify prior work and university experience. Role descriptions, dates and remote-work details remain alongside them.
