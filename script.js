@@ -7,7 +7,7 @@ const filters=[...document.querySelectorAll('.filter')];
 filters.forEach(button=>button.addEventListener('click',()=>{
   const category=button.dataset.filter;let visible=0,archived=0;
   filters.forEach(b=>{const selected=b===button;b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));});
-  document.querySelectorAll('.project-card').forEach(card=>{card.hidden=category!=='all'&&card.dataset.category!==category;if(!card.hidden){visible++;if(card.classList.contains('archive-project'))archived++;card.classList.add('is-visible');}});
+  document.querySelectorAll('.project-card').forEach(card=>{card.hidden=category!=='all'&&card.dataset.category!==category;if(!card.hidden){visible++;if(card.classList.contains('archive-project'))archived++;revealScrollElement(card);}});
   document.querySelector('#filter-count').textContent=`${visible} PROJECT${visible===1?'':'S'}`;document.querySelector('.archive-heading').hidden=archived===0;grid.hidden=![...grid.children].some(card=>!card.hidden);
 }));
 const menu=document.querySelector('.menu-toggle'),mobileNav=document.querySelector('.mobile-nav'),header=document.querySelector('.header');
@@ -17,14 +17,70 @@ mobileNav?.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&menu?.getAttribute('aria-expanded')==='true'){closeMenu();menu?.focus({preventScroll:true});}});
 document.addEventListener('click',e=>{if(header&&!header.contains(e.target))closeMenu();});
 window.addEventListener('resize',()=>{if(innerWidth>850)closeMenu();},{passive:true});
-const reducedMotion=matchMedia('(prefers-reduced-motion:reduce)').matches,topButton=document.querySelector('.back-to-top'),progress=document.querySelector('.scroll-progress');let scrollQueued=false;
-function updateScroll(){const max=document.documentElement.scrollHeight-innerHeight;progress.style.transform=`scaleX(${max>0?Math.min(1,scrollY/max):0})`;header.classList.toggle('scrolled',scrollY>15);topButton.classList.toggle('visible',scrollY>650);scrollQueued=false;}
-window.addEventListener('scroll',()=>{if(!scrollQueued){scrollQueued=true;requestAnimationFrame(updateScroll);}},{passive:true});updateScroll();
-topButton?.addEventListener('click',()=>window.scrollTo({top:0,behavior:reducedMotion?'auto':'smooth'}));
-if('IntersectionObserver' in window&&!reducedMotion){
-  const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target);}}),{threshold:.08,rootMargin:'0px 0px 25px 0px'});
-  document.querySelectorAll('.play-feature,.featured-project,.archive-project,.experience-card,.section-heading').forEach(el=>{el.classList.add('reveal-ready');observer.observe(el);});
+const scrollMotionPreference=matchMedia('(prefers-reduced-motion:reduce)'),topButton=document.querySelector('.back-to-top'),progress=document.querySelector('.scroll-progress');let scrollQueued=false;
+const hero=document.querySelector('.hero'),heroContent=document.querySelector('.hero-content'),heroAtmosphere=document.querySelector('.hero-atmosphere');
+let heroHeight=hero?.offsetHeight||1;
+function updateScroll(){
+  const max=document.documentElement.scrollHeight-innerHeight,y=Math.max(0,scrollY);
+  progress.style.transform=`scaleX(${max>0?Math.min(1,y/max):0})`;header.classList.toggle('scrolled',y>15);topButton.classList.toggle('visible',y>650);
+  if(heroContent&&!scrollMotionPreference.matches&&y<heroHeight+innerHeight){
+    const amount=Math.min(1,y/heroHeight),mobile=innerWidth<=650;
+    heroContent.style.translate=`0 ${-amount*(mobile?24:74)}px`;heroContent.style.opacity=String(1-amount*.55);
+    heroAtmosphere.style.translate=`0 ${amount*(mobile?25:100)}px`;
+  }
+  scrollQueued=false;
 }
+window.addEventListener('scroll',()=>{if(!scrollQueued){scrollQueued=true;requestAnimationFrame(updateScroll);}},{passive:true});
+window.addEventListener('resize',()=>{heroHeight=hero?.offsetHeight||1;if(!scrollQueued){scrollQueued=true;requestAnimationFrame(updateScroll);}},{passive:true});updateScroll();
+topButton?.addEventListener('click',()=>window.scrollTo({top:0,behavior:scrollMotionPreference.matches?'auto':'smooth'}));
+
+// Reveal once on entry. The Web Animations API keeps scroll movement independent
+// of the project cards' pointer tilt, and leaves no idle animation loop behind.
+let revealObserver=null;const scrollAnimations=new Map();
+function revealScrollElement(el,immediate=false){
+  if(!el.classList.contains('scroll-pending'))return;
+  revealObserver?.unobserve(el);el.classList.remove('scroll-pending');el.classList.add('is-visible');
+  if(immediate||scrollMotionPreference.matches||!el.animate)return;
+  const mobile=innerWidth<=650,delay=Number(el.dataset.scrollDelay||0),lines=el.querySelectorAll(':scope > .headline-line > .headline-text');
+  const targets=lines.length?[...lines]:[el],animations=[];
+  targets.forEach((target,index)=>{
+    const heading=lines.length>0,row=el.dataset.scrollKind==='row';
+    const animation=target.animate([
+      {opacity:0,translate:heading?'0 105%':row?`${mobile?-12:-24}px 0`:`0 ${mobile?22:42}px`,scale:el.classList.contains('featured-project')?'.975':'1'},
+      {opacity:1,translate:'0 0',scale:'1'}
+    ],{duration:heading?950:mobile?620:820,delay:delay+index*100,fill:'backwards',easing:'cubic-bezier(.16,1,.3,1)'});
+    animations.push(animation);
+    animation.finished.then(()=>{const running=scrollAnimations.get(el);if(running===animations&&running.every(a=>a.playState==='finished'))scrollAnimations.delete(el);}).catch(()=>{});
+  });
+  scrollAnimations.set(el,animations);
+}
+function initScrollReveals(){
+  if(!('IntersectionObserver' in window)||scrollMotionPreference.matches||!Element.prototype.animate)return;
+  // Line masks preserve the heading's text, semantic level and natural wrapping.
+  document.querySelectorAll('main h2').forEach(heading=>{
+    if(!/<br\s*\/?>/i.test(heading.innerHTML))return;
+    const lines=heading.innerHTML.split(/<br\s*\/?>/i);heading.replaceChildren();
+    lines.forEach((html,index)=>{if(index)heading.append(document.createTextNode(' '));const mask=document.createElement('span'),line=document.createElement('span');mask.className='headline-line';line.className='headline-text';line.innerHTML=html;mask.append(line);heading.append(mask);});
+  });
+  revealObserver=new IntersectionObserver(entries=>{
+    entries.filter(entry=>entry.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top).forEach(entry=>revealScrollElement(entry.target));
+  },{threshold:0,rootMargin:'0px 0px -7% 0px'});
+  const selectors=['.intro-strip p','.intro-strip>div>span','.section-heading','main h2','.section-intro>p','.section-intro>div','.work-toolbar','.featured-project','.archive-heading','.archive-project','.about-signature','.about-copy>p','.about-stats>div','.experience-meta','.experience-logo','.experience-role','.experience-card p:not(.experience-role)','.experience-foot','.toolkit-note','.tool-list>div','.contact-top','.contact-bottom','.footer'];
+  document.querySelectorAll(selectors.join(',')).forEach(el=>{el.classList.add('scroll-pending');revealObserver.observe(el);});
+  ['.projects-grid','.project-archive','.about-stats','.tool-list'].forEach(selector=>{
+    const group=document.querySelector(selector);if(!group)return;
+    [...group.children].forEach((el,index)=>{el.dataset.scrollDelay=String((index%(selector==='.project-archive'?3:2))*90);if(selector==='.tool-list')el.dataset.scrollKind='row';});
+  });
+}
+initScrollReveals();
+function settleScrollMotion(){
+  if(!scrollMotionPreference.matches){updateScroll();return;}
+  revealObserver?.disconnect();for(const animations of scrollAnimations.values())for(const animation of animations)animation.cancel();scrollAnimations.clear();
+  document.querySelectorAll('.scroll-pending').forEach(el=>revealScrollElement(el,true));
+  heroContent?.style.removeProperty('translate');heroContent?.style.removeProperty('opacity');heroAtmosphere?.style.removeProperty('translate');
+}
+scrollMotionPreference.addEventListener('change',settleScrollMotion);
+document.addEventListener('focusin',event=>{const pending=event.target.closest?.('.scroll-pending');if(pending)revealScrollElement(pending,true);});
 if('IntersectionObserver' in window){const navObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting)document.querySelectorAll('.desktop-nav a').forEach(a=>a.classList.toggle('active',a.hash==='#'+entry.target.id));}),{rootMargin:'-15% 0px -65% 0px',threshold:0});document.querySelectorAll('section[id]').forEach(section=>navObserver.observe(section));}
 const copyButton=document.querySelector('#copy-email'),copyStatus=document.querySelector('#copy-status');
 copyButton?.addEventListener('click',async()=>{
@@ -39,7 +95,7 @@ document.querySelectorAll('[data-project-total],[data-project-stat]').forEach(el
 document.querySelector('#filter-count').textContent=projects.length+' PROJECTS';
 
 // Cursor effects only animate in response to input and settle when the pointer stops.
-const pointerMedia=matchMedia('(hover:hover) and (pointer:fine)'),motionMedia=matchMedia('(prefers-reduced-motion:reduce)');
+const pointerMedia=matchMedia('(hover:hover) and (pointer:fine)'),motionMedia=scrollMotionPreference;
 const cursorRing=document.createElement('div'),cursorAura=document.createElement('div');cursorRing.className='cursor-ring';cursorAura.className='cursor-aura';cursorRing.setAttribute('aria-hidden','true');cursorAura.setAttribute('aria-hidden','true');document.body.append(cursorAura,cursorRing);
 let effectsEnabled=false,pointerFrame=0,pointerTarget=null,pointerCurrent=null,activeCard=null,lastSpark=0,lastSparkPoint=null;const sparks=new Set();
 function resetCard(){if(activeCard){activeCard.style.removeProperty('--tilt-x');activeCard.style.removeProperty('--tilt-y');activeCard=null;}}
